@@ -192,18 +192,7 @@ class ProductForm extends React.Component {
     onPickMultiple(images) {
         alert(JSON.stringify(images))
         var product = { ...this.state.product };
-        images.forEach(image => {
-            if (!product.carouselImages.values.includes(image.value)) {
-                alert("in new")
-                product.carouselImages.values = [...product.carouselImages.values, image.value];
-                product.carouselImages.sources = [...product.carouselImages.sources, image.src];
-            }
-            // }else{
-            //     alert("in already")
-            //     product.carouselImages.values = product.carouselImages.values.filter(value => value != image.value);
-            //     product.carouselImages.sources = product.carouselImages.sources.filter(src => src != image.src);
-            // }
-        })
+        product.carouselImages.values = [{...product.carouselImages.values}, {...images.values}] 
 
         this.setState({ product: product })
     }
