@@ -21,6 +21,7 @@ export default function products(
                 page: action.payload
             })
         case ActionTypes.ADD_PRODUCT:
+            alert(JSON.stringify(action.payload))
             var products = action.payload;
             return Object.assign({}, state, { isFetching: false, errMess: null, items: state.items.concat(products) })
         // return {state, isLoading: false, errMess: null, tags: action.payload };

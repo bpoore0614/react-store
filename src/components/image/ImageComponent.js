@@ -4,7 +4,11 @@ import { Card, CardImg, CardImgOverlay, CardTitle, Breadcrumb, BreadcrumbItem, F
 import { Control, LocalForm, Errors } from 'react-redux-form';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux'
-import { fetchImages, addSelectedImage, removeSelectedImage } from '../../redux/ActionTypes';
+import { addSelectedImage, removeSelectedImage, postImages } from '../../redux/ActionTypes';
+import ListItem from "./ImageListSingleComponent";
+import AddBulkImages from "./BulkAddImageComponent";
+import ImagePicker from "./ImagePickerComponent";
+import Paginate from "../Utility/Paginate";
 import { baseUrl } from '../../shared/baseUrl'
 import { UncontrolledCarousel } from 'reactstrap';
 import { findDOMNode } from 'react-dom';
@@ -19,74 +23,92 @@ const minLength = (len) => (val) => val && (val.length >= len);
 class Image extends Component {
     constructor(props) {
         super(props);
-
         this.state = {
+            selectedImages: null,
+            imagePickerOpen: false,
+            currentPage: 3,
+            pageLimit: 25
         };
-        this.removeCategory = this.removeCategory.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        // this.removeCategory = this.removeCategory.bind(this);
+        // this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-
-    removeCategory(id) {
-        // const children = this.props.categories.filter((category) => category.parent == id)
-        // 	.map((children) => children.name)
-        // 	.join(", ")
-        // if (children.length != 0) {
-        // 	alert("Cannot delete tag due to having the following children: \n" + children)
-        // } else {
-        // 	this.props.removeCategory(id)
-        // }
-    }
     componentDidMount() {
-        this.props.fetchImages();
-    }
-    async handleSubmit(id) {
-        const index = this.props.images.selected.indexOf(id);
-        if (index == -1) {
-            await this.props.addSelectedImage(id)
-            $("#" + id).css("height", "175").css("width", "175");
-        } else {
-            await this.props.removeSelectedImage(id);
-            $("#" + id).css("height", "").css("width", "");
-        }
-    }
-    mouseOver(id) {
-        $("#" + id).css("height", "200").css("width", "200");
     }
 
-    mouseLeave(id) {
-        $("#" + id).css("height", "").css("width", "");
+    selectPage(page) {
+        this.setState({ currentPage: page })
     }
+
+    sliceImagesForPagination() {
+        const currentPage = this.state.currentPage;
+        const pageLimit = this.state.pageLimit;
+        const end = ((currentPage - 1) * pageLimit) + pageLimit;
+        const start = ((currentPage - 1) * pageLimit) > 0 ? ((currentPage - 1) * pageLimit) : 0;
+        return (this.props.images.items.slice(start, end).map((image, i) => ({ src: baseUrl + "/" + image.thumbnail, value: image._id })))
+    }
+
+    async handleUploadFilesSubmit() {
+        await this.props.postImages(this.state.selectedImages)
+        // this.setState({ isUploadOneModalOpen: false })
+        // this.setState({ isUploadMultiModalOpen: false })
+    }
+
+    handleOnChangeUploadFiles(event) {
+        let formData = new FormData();
+        for (let x of event.target.files) {
+            formData.append('myFile', x);
+        }
+
+        this.setState({
+            selectedImages: formData
+        })
+    }
+
 
     render() {
-        // if (this.props.listStyle == "single") {
-        //     return (
-        //         <div className="d-inline" >
-        //             <ImageListSingle
-        //                 mouseLeave={this.mouseLeave}
-        //                 mouseOver={this.mouseOver}
-        //                 handleSubmit={this.handleSubmit}
-        //                 images={this.props.images}
-        //             />
-        //         </div>
-        //     )
-        // } else if ((this.props.listStyle == "multi")) {
-        //     return (
-        //         <div className="d-inline" >
-        //             <ImageListMultiple
-        //                 mouseLeave={this.mouseLeave}
-        //                 mouseOver={this.mouseOver}
-        //                 handleSubmit={this.handleSubmit}
-        //                 images={this.props.images}
-        //             />
-        //         </div>
-        //     )
-        // }
-        // else {
+        if (this.props.images.items && !this.props.images.isFetching) {
+            this.sliceImagesForPagination()
+        }
+        if (this.props.images.items && this.props.listImages) {
             return (
-                <div></div>
+                <ListItem
+                    images={this.props.images.items} />
             )
-        // }
+        }
+
+        if (this.props.images.items && this.props.addBulkImages) {
+            return (
+                <AddBulkImages
+                    handleUploadFilesSubmit={() => this.handleUploadFilesSubmit()}
+                    images={this.props.images.items}
+                    handleOnChangeUploadFiles={this.handleOnChangeUploadFiles.bind(this)} />
+            )
+        }
+
+        if (this.props.images.items && !this.props.images.isFetching && this.props.imagePicker) {
+            return (
+                <>
+                    <ImagePicker
+                        images={this.props.images.items}
+                        multiple={this.props.multiple}
+                        toggelModal={this.props.toggelModal}
+                        onPick={this.props.multiple ? this.props.onPickMultiple : this.props.onPickSingle}
+                    />
+                    {/* <Paginate
+                        totalRecords={this.props.images.items.length}
+                        pageLimit={this.state.pageLimit}
+                        currentPage={this.state.currentPage}
+                        selectPage={this.selectPage.bind(this)} />
+                    /> */}
+                </>
+            )
+        }
+
+
+        return (
+            <div></div>
+        )
     }
 }
 
@@ -98,13 +120,9 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-    fetchImages: () => dispatch(fetchImages()),
+    postImages: (formData) => dispatch(postImages(formData)),
     addSelectedImage: (image) => dispatch(addSelectedImage(image)),
     removeSelectedImage: (image) => dispatch(removeSelectedImage(image))
-
-
-    // postReview: (val) => dispatch(postReview(val)),
-    // removeReview: (id) => dispatch(removeReview(id)),
     // sendFlashMessage: (name, className) => dispatch(sendFlashMessage(name, className))
 })
 

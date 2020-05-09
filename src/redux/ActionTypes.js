@@ -730,13 +730,13 @@ export const fetchImages = () => (dispatch) => {
         });
 }
 
-export const postImage = (img, values) => (dispatch) => {
+export const postImages = (formData) => (dispatch) => {
 
-    let formData = new FormData();
+    // let formData = new FormData();
 
-    for (let x of img) {
-        formData.append('myFile', x);
-    }
+    // for (let x of img) {
+    //     formData.append('myFile', x);
+    // }
 
     const config = {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -745,22 +745,22 @@ export const postImage = (img, values) => (dispatch) => {
         config)
         .then(response => {
             dispatch(addImage(response))
-            if (values.addToSingle) {
-                response = response.data.map((image, i) => ({ src: baseUrl + image.thumbnail, value: image._id }))[0]
-                dispatch(addSelected(response))
-            }
-            if (values.addToMultiple) {
-                response = response.data.map((image, i) => ({ src: baseUrl + image.thumbnail, value: image._id }))
-                alert(response);
-                dispatch(addMultiImage(response))
-            }
+            // if (values.addToSingle) {
+            //     response = response.data.map((image, i) => ({ src: baseUrl + image.thumbnail, value: image._id }))[0]
+            //     dispatch(addSelected(response))
+            // }
+            // if (values.addToMultiple) {
+            //     response = response.data.map((image, i) => ({ src: baseUrl + image.thumbnail, value: image._id }))
+            //     alert(response);
+            //     dispatch(addMultiImage(response))
+            // }
         })
         .catch(function (error) {
             dispatch(imagesFailed(error.response.data))
         })
         .finally(function () {
-            if (values.addToSingle) {
-            }
+            // if (values.addToSingle) {
+            // }
         });
 }
 
@@ -861,8 +861,8 @@ export const postProduct = (values) => (dispatch) => {
     newCategory.name = values.name.value;
     newCategory.description = values.description.value;
     newCategory.price = values.price.value;
-    newCategory.mainImage = values.mainImage.value;
-    newCategory.carouselImages = values.carouselImages.values;
+    newCategory.mainImage = values.mainImage.image ? values.mainImage.image._id : null;
+    newCategory.carouselImages = values.carouselImages.images.map(img => img._id);
     newCategory.featured = values.featured.value;
     newCategory.categories = values.categories;
     newCategory.tags = values.tags;
@@ -886,8 +886,8 @@ export const putProduct = (values, id) => (dispatch) => {
     newCategory.name = values.name.value;
     newCategory.description = values.description.value;
     newCategory.price = values.price.value;
-    newCategory.mainImage = values.mainImage.value;
-    newCategory.carouselImages = values.carouselImages.values;
+    newCategory.mainImage = values.mainImage.image ? values.mainImage.image._id : null;
+    newCategory.carouselImages = values.carouselImages.images.map(img => img._id);
     newCategory.featured = values.featured.value;
     newCategory.categories = values.categories;
     newCategory.tags = values.tags;

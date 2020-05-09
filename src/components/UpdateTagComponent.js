@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Card, CardImg, CardImgOverlay, CardTitle, Breadcrumb, BreadcrumbItem, FormGroup, Button, Modal, ModalHeader, ModalBody, Label } from 'reactstrap';
 import { Control, LocalForm, Errors } from 'react-redux-form';
-import { fetchParents, putTag, fetchTags } from '../redux/ActionTypes';
+import { fetchParents, putTag } from '../redux/ActionTypes';
 import { connect } from 'react-redux';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { Link, StaticRouter } from 'react-router-dom';
@@ -52,8 +52,7 @@ class UpdateTag extends Component {
     }
 
     render() {
-
-
+alert(JSON.stringify(this.state))
         if (this.props.parents.didInvalidate || this.state.tagIdNotFound) {
             return (
                 <div>error {this.state.error + " " + this.props.tags.errMess + " " + this.props.parents.errMess} </div>
@@ -82,12 +81,10 @@ class UpdateTag extends Component {
 
 const mapDispatchToProps = (dispatch) => ({
     fetchParents: (tagId) => dispatch(fetchParents(tagId)),
-    // fetchTags: () => dispatch(fetchTags()),
     putTag: (tagId, name, parent) => dispatch(putTag(tagId, name, parent))
 })
 const mapStateToProps = state => {
     return {
-        // tags: state.Tags,
         parents: state.Parents,
     }
 }

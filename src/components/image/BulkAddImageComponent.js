@@ -11,7 +11,7 @@ const BulkAddImage = props => (
     <LocalForm onSubmit={(values => props.handleUploadFilesSubmit(values))}>
         <FormGroup>
             <Label htmlFor="files">Upload Picture </Label>
-            <input type="file" name="myFile" accept="image/*" onChange={props.uploadSelectedFiles} multiple />
+            <input type="file" name="myFile" accept="image/*" onChange={props.handleOnChangeUploadFiles} multiple />
         </FormGroup>
 
         {/* <FormGroup>

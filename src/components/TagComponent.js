@@ -12,7 +12,6 @@ import {
 	fetchTagsIfNeeded,
 	postTag,
 	fetchParents,
-	fetchTags,
 	putTag,
 	removeTag
 	//   invalidateSubreddit
@@ -68,7 +67,6 @@ class Tag extends Component {
 
 
 	componentDidMount() {
-		this.props.fetchTags();
 	}
 
 	render() {
@@ -140,10 +138,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch) => ({
 	postTag: (name, parent) => dispatch(postTag(name, parent)),
 	putTag: (id, name, parent) => dispatch(putTag(id, name, parent)),
-	fetchTagsIfNeeded: () => dispatch(fetchTagsIfNeeded()),
 	removeTag: (id) => dispatch(removeTag(id)),
 	// fetchParents: (id) => dispatch(fetchParents(id)),
-	fetchTags: () => dispatch(fetchTags())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Tag);

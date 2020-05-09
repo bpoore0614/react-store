@@ -16,22 +16,22 @@ class Paginate extends Component {
 
     render() {
         return (
-            <div class="pagination">
-                <a href="#" onClick={() => this.props.selectPage(this.currentPage > 1 ? this.currentPage - 1 : 1)}>
+            <div className="pagination">
+                <a key="arrow-left" href="#" onClick={() => this.props.selectPage(this.currentPage > 1 ? this.currentPage - 1 : 1)}>
                     <span className="fa fa-arrow-left fa-lg"></span></a>
                 {this.totalPages <= 5
                     ?
                     <>
                         {Array.apply(null, Array(this.totalPages)).map((val, i) => {
                             return (
-                                <a
+                                <a key={"lessThanFive"+i}
                                     className={this.currentPage == i + 1 ? "active" : "hide-pagination-links"}
                                     onClick={() => this.props.selectPage(i + 1)}
                                     href="#">{i + 1}
                                 </a>
                             )
                         })}
-                        <a href="#"
+                        <a key={"lessThanFiveRight"} href="#"
                             onClick={() => this.props.selectPage(
                                 this.currentPage < this.totalPages ? this.currentPage + 1 : this.totalPages)}>
                             <span className="fa fa-arrow-right fa-lg"></span>
@@ -43,7 +43,7 @@ class Paginate extends Component {
                             return (
                                 this.currentPage === 1 || this.currentPage === 2 || this.currentPage === 3
                                     ?
-                                    <a
+                                    <a key={"greaterThanFive" + i}
                                         className={this.currentPage == i + 1 ? "active" : "hide-pagination-links"}
                                         onClick={() => this.props.selectPage(i + 1)}
                                         href="#">{i + 1}
@@ -57,7 +57,7 @@ class Paginate extends Component {
                         {this.currentPage != 1 && this.currentPage != 2 && this.currentPage != 3
                             ?
                             <>
-                                <a
+                                <a key={"greaterThanFivePage1"}
                                     className={this.currentPage == 1 ? "active" : "hide-pagination-links"}
                                     onClick={() => this.props.selectPage(1)}
                                     href="#">1
@@ -74,7 +74,7 @@ class Paginate extends Component {
                                     return (
                                         this.currentPage != 1 && this.currentPage != 2 && this.currentPage != 3
                                             ?
-                                            <a
+                                            <a key={"greaterThanFiveMinus1Page"}
                                                 className={i == 1 ? "active" : "hide-pagination-links"}
                                                 onClick={() => this.props.selectPage(this.currentPage + i - 1)}
                                                 href="#">{this.currentPage + i - 1}
@@ -87,29 +87,29 @@ class Paginate extends Component {
                             </>
                             :
                             <>
-                                <a
+                                <a key={"greaterThan3FromEnd"}
                                     className={this.currentPage == this.totalPages - 3 ? "active" : "hide-pagination-links"}
                                     onClick={() => this.props.selectPage(this.totalPages - 3)}
                                     href="#">{this.totalPages - 3}
                                 </a>
-                                <a
+                                <a key={"greaterThan2FromEnd"}
                                     className={this.currentPage == this.totalPages - 2 ? "active" : "hide-pagination-links"}
                                     onClick={() => this.props.selectPage(this.totalPages - 2)}
                                     href="#">{this.totalPages - 2}
                                 </a>
-                                <a
+                                <a key={"greaterThan1FromEnd"}
                                     className={this.currentPage == this.totalPages - 1 ? "active" : "hide-pagination-links"}
                                     onClick={() => this.props.selectPage(this.totalPages - 1)}
                                     href="#">{this.totalPages - 1}
                                 </a>
                             </>
                         }
-                        <a
+                        <a key={"greaterThan5End"}
                             className={this.currentPage == this.totalPages ? "active" : "hide-pagination-links"}
                             onClick={() => this.props.selectPage(this.totalPages)}
                             href="#">{this.totalPages}
                         </a>
-                        <a href="#"
+                        <a 
                             onClick={() => this.props.selectPage(
                                 this.currentPage < this.totalPages ? this.currentPage + 1 : this.totalPages)}>
                             <span className="fa fa-arrow-right fa-lg"></span>

@@ -9,7 +9,6 @@ import CategoryList from './CategoryListComponent';
 import NewCategory from './NewCategoryComponent';
 import { connect } from 'react-redux'
 import {
-	fetchCategories,
 	postCategory,
 	putCategory,
 	removeCategory
@@ -65,7 +64,6 @@ class Category extends Component {
 
 
 	componentDidMount() {
-		this.props.fetchCategories();
 	}
 
 	render() {
@@ -118,7 +116,6 @@ const mapDispatchToProps = (dispatch) => ({
 	postCategory: (name, parent) => dispatch(postCategory(name, parent)),
 	putCategory: (id, name, parent) => dispatch(putCategory(id, name, parent)),
 	removeCategory: (id) => dispatch(removeCategory(id)),
-	fetchCategories: () => dispatch(fetchCategories())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Category);

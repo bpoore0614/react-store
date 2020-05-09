@@ -1,0 +1,30 @@
+.image_picker {
+    width: 100%;
+}
+.image-hover:hover {
+    box-shadow: 0 0 3px 2px rgba(0, 140, 186, 0.7);
+    cursor: pointer;
+}
+
+.selected {
+    position: relative;
+    background-color: rgba(0, 140, 186, 1);
+}
+    .checked {
+        display: inline-block;
+        transition: 0.5s ease;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+
+        .icon {
+            background: url("./images/check.png");
+            background-size: cover;
+            height: 75px;
+            width: 75px;
+        }
+    }
+
+// .clear {
+//   clear: both;
+// }

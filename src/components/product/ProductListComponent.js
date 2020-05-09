@@ -7,13 +7,13 @@ const ProductList = props => (
     <div className="col-12 col-md-5 m-1" key="tags">
         
         <h4>Products</h4>
-        {props.products.items.map((product) => {
+        {props.products.items.map((product, i) => {
             if (product.name == 'root') {
                 return
             }
             return (
-                <div>
-                    <div key={product._id + 'admin-list'} style={{ marginLeft: product.level * 20 + 'px' }}>
+                <div key={product._id + 'admin-list' + i}>
+                    <div style={{ marginLeft: product.level * 20 + 'px' }}>
                         <p>{product.name}</p>
                         <div className="row">
                             <div className="col-6">

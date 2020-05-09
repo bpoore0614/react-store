@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Card, CardImg, CardImgOverlay, CardTitle, Breadcrumb, BreadcrumbItem, FormGroup, Button, Modal, ModalHeader, ModalBody, Label } from 'reactstrap';
 import { Control, LocalForm, Errors } from 'react-redux-form';
-import { fetchCategoryParents, putTag, fetchTags } from '../../redux/ActionTypes';
+import { fetchCategoryParents, putTag } from '../../redux/ActionTypes';
 import { connect } from 'react-redux';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { Link, StaticRouter } from 'react-router-dom';
@@ -79,7 +79,6 @@ class UpdateTag extends Component {
 
 const mapDispatchToProps = (dispatch) => ({
     fetchCategoryParents: (categoryId) => dispatch(fetchCategoryParents(categoryId)),
-    // fetchTags: () => dispatch(fetchTags()),
     // putTag: (tagId, name, parent) => dispatch(putTag(tagId, name, parent))
 })
 const mapStateToProps = state => {

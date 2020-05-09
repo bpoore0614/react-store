@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import Tag from './TagComponent';
 import Review from './review/ReviewComponent';
 import UpdateReview from './review/UpdateReviewComponent';
-import Images from './image/ImageComponent';
+import Image from './image/ImageComponent';
 import Product from './product/ProductComponent'
 import NotFoundPage from './notFoundPage';
 import Unathorized from './NotAuthorizedPage';
@@ -27,6 +27,8 @@ import {
   fetchParents,
   fetchTags,
   fetchCategories,
+  fetchImages,
+  fetchProducts,
   removeCategory,
   postCategory,
   putCategory,
@@ -48,6 +50,10 @@ class Main extends Component {
 
 
   componentDidMount() {
+    this.props.fetchTags();
+    this.props.fetchCategories();
+    this.props.fetchImages();
+    this.props.fetchProducts();
   }
 
   render() {
@@ -119,6 +125,7 @@ class Main extends Component {
         <Switch location={this.props.location}>
 
           <PrivateRoute path="/admin/tags" component={Tag} />
+          <PrivateRoute path="/admin/images" component={Image} />
           {/* <Route path='/users/:id' render={(props) => <UserDetail {...props}/>}/> */}
           <Route exact path='/tags' component={Tag} />
           {/* <PrivateRoute path='/tags/:tagId' component={updateTag} /> */}
@@ -127,7 +134,7 @@ class Main extends Component {
           
           <Route exact path='/reviews' component={Review} />
           <Route path='/reviews/:reviewId' component={ReviewWithId} />
-          <Route exact path='/images' component={Images} />
+          <Route exact path='/images' component={Image} />
       
           <Route exact path='/products/add-product' component={() => <Product addProduct ={true} />} /> 
           
@@ -150,6 +157,9 @@ class Main extends Component {
 
 const mapDispatchToProps = (dispatch) => ({
   fetchTags: () => dispatch(fetchTags()),
+  fetchCategories: () => dispatch(fetchCategories()),
+  fetchImages: ()=>dispatch(fetchImages()),
+  fetchProducts: () =>dispatch(fetchProducts()),
   postTag: (name, parent) => dispatch(postTag(name, parent)),
 
 

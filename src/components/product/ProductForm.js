@@ -1,20 +1,25 @@
 import React from 'react';
-import { Button, Form, FormGroup, FormFeedback, Label, Input, FormText, Row, Col, Modal, ModalHeader, ModalBody, Carousel } from 'reactstrap';
+import { Button, Form, FormGroup, FormFeedback, Label, Input, FormText, Row, Col, Modal, ModalHeader, ModalBody, ModalFooter, Carousel } from 'reactstrap';
 import { Redirect } from 'react-router-dom';
 import { baseUrl } from '../../shared/baseUrl';
-import ImagePicker from 'react-image-picker';
+// import ImagePicker from 'react-image-picker';
+import ImagePicker from '../image/ImagePickerComponent';
+import Paginate from '../Utility/Paginate';
+
 import { validate } from '../Utility/FromValidation';
 import { formErrMess } from '../Utility/FromValidation';
+import ImageComponent from '../image/ImageComponent';
 
 class ProductForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            imagePage: 1,
             isFormValid: false,
             product: {
                 name: {
                     value: '',
-                    placeholder: 'Produt Name',
+                    placeholder: 'Product Name',
                     valid: false,
                     validationRules: {
                         minLength: 4,
@@ -48,12 +53,10 @@ class ProductForm extends React.Component {
                     touched: false
                 },
                 mainImage: {
-                    value: null,
-                    src: null
+                    image: null
                 },
                 carouselImages: {
-                    values: [],
-                    sources: []
+                    images: [],
                 },
                 featured: {
                     value: false,
@@ -68,7 +71,11 @@ class ProductForm extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCheckbox = this.handleCheckbox.bind(this);
+        this.onPickSingle = this.onPickSingle.bind(this);
+        this.onPickMultiple = this.onPickMultiple.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
     }
+
 
     handleChange(event) {
         const name = event.target.name;
@@ -116,15 +123,21 @@ class ProductForm extends React.Component {
 
     }
 
-    removeImageHandler(id) {
+    removeImageHandler(image, multiple = false) {
         const product = { ...this.state.product };
-        const index = product.carouselImages.values.findIndex(value => value === id);
-        alert(JSON.stringify(product.carouselImages.values))
-        product.carouselImages.values = product.carouselImages.values = product.carouselImages.values.filter((val, i) => i !== index)
-        product.carouselImages.sources = product.carouselImages.sources.filter((src, i) => i !== index)
-        this.setState({
-            product: product
-        })
+        if (multiple) {
+            product.carouselImages.images = product.carouselImages.images.filter(img => img._id != image._id)
+        } else {
+            product.mainImage.image = null;
+        }
+        this.setState({ product: product })
+
+        // const index = product.carouselImages.values.findIndex(value => value === id);
+        // product.carouselImages.values = product.carouselImages.values = product.carouselImages.values.filter((val, i) => i !== index)
+        // product.carouselImages.sources = product.carouselImages.sources.filter((src, i) => i !== index)
+        // this.setState({
+        //     product: product
+        // })
     }
 
     componentDidMount() {
@@ -140,12 +153,10 @@ class ProductForm extends React.Component {
             product.price.valid = true;
 
             if (this.props.product.mainImage) {
-                product.mainImage.value = this.props.product.mainImage._id;
-                product.mainImage.src = baseUrl + "/" + this.props.product.mainImage.thumbnail
+                product.mainImage.image = this.props.product.mainImage;
             }
             if (this.props.product.carouselImages) {
-                product.carouselImages.sources = this.props.product.carouselImages.map(img => baseUrl + "/" + img.thumbnail)
-                product.carouselImages.values = this.props.product.carouselImages.map(img => img._id)
+                product.carouselImages.images = this.props.product.carouselImages;
             }
             product.featured.value = this.props.product.featured;
             product.categories = this.props.product.categories;
@@ -154,7 +165,7 @@ class ProductForm extends React.Component {
                 isFormValid: true,
                 product: product
             })
-            // alert(JSON.stringify(this.props.product.carouselImages))
+
         }
     }
 
@@ -177,6 +188,7 @@ class ProductForm extends React.Component {
 
             } else {
                 this.props.postProduct(this.state.product)
+                this.props.redirect()
             }
         }
     }
@@ -184,16 +196,14 @@ class ProductForm extends React.Component {
 
     onPickSingle(image) {
         var product = { ...this.state.product }
-        product.mainImage.value = image.value;
-        product.mainImage.src = image.src;
+        product.mainImage.image = image[0];
         this.setState({ product: product })
     }
 
-    onPickMultiple(images) {
-        alert(JSON.stringify(images))
-        var product = { ...this.state.product };
-        product.carouselImages.values = [{...product.carouselImages.values}, {...images.values}] 
 
+    onPickMultiple(images) {
+        var product = { ...this.state.product };
+        product.carouselImages.images = [...product.carouselImages.images, ...images]
         this.setState({ product: product })
     }
 
@@ -235,10 +245,10 @@ class ProductForm extends React.Component {
                         placeholder={this.state.product.name.placeholder}
                         value={this.state.product.name.value}
                         valid={this.state.product.name.valid}
-                        invalid={this.state.product.name.touched ? !this.state.product.name.valid : ""}
+                        invalid={this.state.product.name.touched ? !this.state.product.name.valid : false}
                         onChange={this.handleChange}
                     />
-                    {this.state.product.name.errMess.map(err => <FormFeedback>{err}</FormFeedback>)}
+                    {this.state.product.name.errMess.map((err, i) => <FormFeedback key={"nameError" + i}>{err}</FormFeedback>)}
                 </FormGroup>
 
                 <FormGroup check>
@@ -260,10 +270,10 @@ class ProductForm extends React.Component {
                         placeholder={this.state.product.description.placeholder}
                         value={this.state.product.description.value}
                         valid={this.state.product.description.valid}
-                        invalid={this.state.product.description.touched ? !this.state.product.description.valid : ""}
+                        invalid={this.state.product.description.touched ? !this.state.product.description.valid : false}
                         onChange={this.handleChange}
                     />
-                    {this.state.product.description.errMess.map(err => <FormFeedback>{err}</FormFeedback>)}
+                    {this.state.product.description.errMess.map((err, i) => <FormFeedback key={"descriptionError" + i}>{err}</FormFeedback>)}
                 </FormGroup>
 
                 <FormGroup>
@@ -274,10 +284,10 @@ class ProductForm extends React.Component {
                         placeholder={this.state.product.price.placeholder}
                         value={this.state.product.price.value}
                         valid={this.state.product.price.valid}
-                        invalid={this.state.product.price.touched ? !this.state.product.price.valid : ""}
+                        invalid={this.state.product.price.touched ? !this.state.product.price.valid : false}
                         onChange={this.handleChange}
                     />
-                    {this.state.product.price.errMess.map(err => <FormFeedback>{err}</FormFeedback>)}
+                    {this.state.product.price.errMess.map((err, i) => <FormFeedback key={"priceError" + i}>{err}</FormFeedback>)}
                 </FormGroup>
 
                 <div>
@@ -319,12 +329,15 @@ class ProductForm extends React.Component {
                         <Button outline onClick={() => this.toggleModal("toggleMainImageModal")}>
                             <span className="fa-lg"> Select Main Image</span>
                         </Button >
-                        <Modal isOpen={this.isModalOpen("isMainModalOpen")} toggle={() => this.toggleModal("toggleMainImageModal")} size="lg">
+                        <Modal isOpen={this.isModalOpen("isMainModalOpen")} toggle={() => this.toggleModal("toggleMainImageModal")}
+                            className="modal-dialog-full-width" >
                             <ModalHeader toggle={() => this.toggleModal("toggleMainImageModal")}>Select Main Image</ModalHeader>
                             <ModalBody>
-                                <ImagePicker
-                                    images={this.props.images.items.reverse().map((image, i) => ({ src: baseUrl + "/" + image.thumbnail, value: image._id }))}
-                                    onPick={this.onPickSingle.bind(this)}
+                                <ImageComponent
+                                    imagePicker={true}
+                                    multiple={false}
+                                    onPickSingle={this.onPickSingle}
+                                    toggelModal={this.toggleModal}
                                 />
                             </ModalBody>
                         </Modal>
@@ -333,11 +346,14 @@ class ProductForm extends React.Component {
 
                 <div className="row">
                     <div className="col-12">Selected Main Image: </div>
-                    {this.state.product.mainImage && this.state.product.mainImage.src
+                    {this.state.product.mainImage && this.state.product.mainImage.image
                         ?
                         <div className="col-xs-4 col-sm-4 col-md-3 col-lg-2 position-relative ">
-                            <Button onClick={() => this.removeImageHandler(this.state.product.mainImage.value)} className="bottom-r mr-3 position-absolute text-danger fa fa-minus-circle fa-3x"></Button>
-                            <img className="w-100" src={this.state.product.mainImage.src} alt="Product main image"></img>
+                            <Button onClick={() => this.removeImageHandler(this.state.product.mainImage.image)}
+                                className="bottom-r mr-3 position-absolute text-danger">
+                                <i className="fa fa-minus-circle fa-2x" />
+                            </Button>
+                            <img className="w-100" src={baseUrl + "/" + this.state.product.mainImage.image.original} alt="Product main image"></img>
                         </div>
 
                         : ""}
@@ -347,13 +363,17 @@ class ProductForm extends React.Component {
                     <Button outline onClick={() => this.toggleModal("toggleMultiImageModal")}>
                         <span className="fa-lg"> Select Carousel Images</span>
                     </Button >
-                    <Modal isOpen={this.isModalOpen("isMultiImageModalOpen")} toggle={() => this.toggleModal("toggleMultiImageModal")} size="lg">
-                        <ModalHeader toggle={() => this.toggleModal("toggleMultiImageModal")}>Select Carousel Images</ModalHeader>
+                    <Modal isOpen={this.isModalOpen("isMultiImageModalOpen")} toggle={() => this.toggleModal("toggleMultiImageModal")}
+                        className="modal-dialog-full-width" >
+                        <ModalHeader toggle={() => this.toggleModal("toggleMultiImageModal")}>
+                            Select Carousel Images
+                        </ModalHeader>
                         <ModalBody>
-                            <ImagePicker
-                                images={this.props.images.items.reverse().map((image, i) => ({ src: baseUrl + "/" + image.thumbnail, value: image._id }))}
-                                onPick={this.onPickMultiple.bind(this)}
+                            <ImageComponent
+                                imagePicker={true}
                                 multiple={true}
+                                onPickMultiple={this.onPickMultiple}
+                                toggelModal={this.toggleModal}
                             />
                         </ModalBody>
                     </Modal>
@@ -364,13 +384,13 @@ class ProductForm extends React.Component {
                     <div className="col-12">Selected Carousel Images: </div>
                     {this.state.product.carouselImages
                         ?
-                        this.state.product.carouselImages.sources.map((src, i) => (
-                            <div className="col-xs-4 col-md-3 col-lg-2 position-relative w-100 ">
-                                <Button onClick={() => this.removeImageHandler(this.state.product.carouselImages.values[i])}
+                        this.state.product.carouselImages.images.map((img, i) => (
+                            <div className="col-xs-4 col-md-3 col-lg-2 position-relative w-100 " key={img + "selectedCarousel" + i}>
+                                <Button onClick={() => this.removeImageHandler(img, true)}
                                     className="bottom-r mr-3 position-absolute text-danger">
                                     <i className="fa fa-minus-circle fa-2x" />
                                 </Button>
-                                <img className="w-100" src={src} alt={"Product carousel image" + i + 1}></img>
+                                <img className="w-100" src={baseUrl + "/" + img.original} alt={"Product carousel image" + i + 1}></img>
                             </div>
                         ))
                         : ""
