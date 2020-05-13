@@ -78,24 +78,10 @@ class ProductForm extends React.Component {
 
 
     handleChange(event) {
-        const name = event.target.name;
-        const value = event.target.value;
-        const product = { ...this.state.product }
-        product[name].value = value;
-        product[name].touched = true;
-
-        const validatedProduct = validate(value, product[name].validationRules, name);
-
-        product[name].valid = validatedProduct.valid
-
-        if (!product[name].valid) {
-            product[name].errMess = validatedProduct.errMess
-        } else {
-            product[name].errMess = []
-        }
-
+        const product = { ...this.state.product}
+        const validatedProduct = validate(event, product);
         this.setState({
-            product: product
+            product: validatedProduct
         });
 
         let formValid = true;

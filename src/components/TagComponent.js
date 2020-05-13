@@ -4,8 +4,8 @@ import { Card, CardImg, CardImgOverlay, CardTitle, Breadcrumb, BreadcrumbItem, F
 import { Control, LocalForm, Errors } from 'react-redux-form';
 import { Link } from 'react-router-dom';
 import { baseUrl } from '../shared/baseUrl';
-import NewTag from './NewTagComponent';
 import TagList from './TagList';
+import AddTagModal from "./AddTagModal";
 import UpdateTag from './UpdateTagComponent';
 import { connect } from 'react-redux'
 import {
@@ -30,28 +30,34 @@ class Tag extends Component {
 		const { match } = props
 
 		this.state = {
-			modalId: null,
+			isAddTagModalOpen: false,
 		};
 
 		this.match = match;
-		// this.toggleModal = this.toggleModal.bind(this);
-		// this.handleSubmit = this.handleSubmit.bind(this);
-		this.showModal = this.showModal.bind(this);
-		this.hideModal = this.hideModal.bind(this);
+		this.toggleModal = this.toggleModal.bind(this);
+		this.isModalOpen = this.isModalOpen.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
 		this.removeTag = this.removeTag.bind(this);
 
 	}
 
-	showModal(id) {
-		this.setState(
-			{
-				modalId: id,
-			});
-	};
-	hideModal(id) {
-		this.setState({
-			modalId: null,
-		})
+	toggleModal(modal) {
+		switch (modal) {
+			case "toggleAddTagModal":
+				return this.setState({ isAddTagModalOpen: !this.state.isAddTagModalOpen });
+		}
+	}
+
+	isModalOpen(modal) {
+		switch (modal) {
+			case "isAddTagModalOpen":
+				return this.state.isAddTagModalOpen;
+		}
+	}
+
+	handleSubmit(values) {
+		this.toggleModal("toggleAddTagModal");
+		this.props.postTag(values.name, values.parent);
 	}
 
 	removeTag(id) {
@@ -90,22 +96,36 @@ class Tag extends Component {
 
 		// return(<Route exact path='/tags/:tagId' component={updateTag} />)
 
-		if (this.props.tags.items && this.match.isExact) {
+		if (window.location.pathname == "/admin/tags/all") {
 			return (
 				<div>
 					<TagList
-					{...(this.props)}
+						{...(this.props)}
 						removeTag={this.removeTag} />
-					<NewTag
+					<AddTagModal
 						tags={this.props.tags.items}
-						postTag={this.props.postTag} />
+						postTag={this.props.postTag}
+						handleSubmit={this.handleSubmit}
+						isModalOpen={this.isModalOpen}
+						toggleModal={this.toggleModal} />
 
 				</div>
 			)
 		}
-		else{
-			return(
-			<Route exact path={`${this.props.match.path}/:tagId`} component={updateTag} />
+
+		if (this.props.addTag) {
+			return (
+				<AddTagModal
+					tags={this.props.tags.items}
+					postTag={this.props.postTag}
+					handleSubmit={this.handleSubmit}
+					isModalOpen={this.isModalOpen}
+					toggleModal={this.toggleModal} />
+			)
+		}
+		else {
+			return (
+				<Route exact path={`${this.props.match.path}/:tagId`} component={updateTag} />
 			)
 		}
 	}

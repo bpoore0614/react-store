@@ -730,7 +730,13 @@ export const fetchImages = () => (dispatch) => {
         });
 }
 
-export const postImages = (formData) => (dispatch) => {
+export const postImages = (values, formData) => (dispatch) => {
+    alert(JSON.stringify(values))
+    formData.append('title', values.title ? values.title.value : null);
+    formData.append('caption', values.caption ? values.caption.value : null);
+    formData.append('alt', values.alt ? values.alt.value : null);
+    formData.append('description', values.description ? values.description.value : null);
+
 
     // let formData = new FormData();
 

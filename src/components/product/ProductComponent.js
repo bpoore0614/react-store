@@ -19,7 +19,9 @@ import ImagePicker from 'react-image-picker'
 import 'react-image-picker/dist/index.css'
 import BulkAddImage from '../image/BulkAddImageComponent';
 import Paginate from '../Utility/Paginate';
-import ImageComponent from '../image/ImageComponent';
+import Image from '../image/ImageComponent';
+import Category from '../category/CategoryComponent';
+import Tag from '../TagComponent';
 
 const required = (val) => val && val.length;
 const maxLength = (len) => (val) => !(val) || (val.length <= len);
@@ -139,13 +141,22 @@ class Product extends Component {
         if (this.props.location.pathname === this.props.match.path + '/add') {
             return (
                 <div className="container">
-                    <ProductForm
-                        tags={this.props.tags.items}
-                        categories={this.props.categories.items}
-                        postProduct={this.props.postProduct}
-                        redirect={this.redirect.bind(this)}
-                    />
-                </div>
+                    <div className="row">
+                        <div className="col-xs-12 col-lg-8">
+                            <ProductForm
+                                tags={this.props.tags.items}
+                                categories={this.props.categories.items}
+                                postProduct={this.props.postProduct}
+                                redirect={this.redirect.bind(this)}
+                            />
+                        </div>
+                        <div className="col-xs-12 col-lg-4">
+                            <Image addImage ={true}/>
+                            <Category addCategory={true}/>
+                            <Tag addTag={true} />
+                        </div>
+                    </div>
+                </div >
             )
         }
         else {

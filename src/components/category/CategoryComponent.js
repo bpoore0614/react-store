@@ -14,6 +14,8 @@ import {
 	removeCategory
 	//   invalidateSubreddit
 } from '../../redux/ActionTypes'
+import AddCategoryModal from './AddCategoryModal';
+
 
 const required = (val) => val && val.length;
 const maxLength = (len) => (val) => !(val) || (val.length <= len);
@@ -24,31 +26,36 @@ class Category extends Component {
 	constructor(props) {
 		super(props);
 		let { match } = props
-		
+
 
 		this.state = {
-			modalId: null,
+			isAddCategoryModalOpen: false,
 		};
 
 		this.match = match;
-		// this.toggleModal = this.toggleModal.bind(this);
-		// this.handleSubmit = this.handleSubmit.bind(this);
-		this.showModal = this.showModal.bind(this);
-		this.hideModal = this.hideModal.bind(this);
+		this.toggleModal = this.toggleModal.bind(this);
+		this.isModalOpen = this.isModalOpen.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
 		this.removeCategory = this.removeCategory.bind(this);
-
 	}
 
-	showModal(id) {
-		this.setState(
-			{
-				modalId: id,
-			});
-	};
-	hideModal(id) {
-		this.setState({
-			modalId: null,
-		})
+	toggleModal(modal) {
+		switch (modal) {
+			case "toggleAddCategoryModal":
+				return this.setState({ isAddCategoryModalOpen: !this.state.isAddCategoryModalOpen });
+		}
+	}
+
+	isModalOpen(modal) {
+		switch (modal) {
+			case "isAddCategoryModalOpen":
+				return this.state.isAddCategoryModalOpen;
+		}
+	}
+
+	handleSubmit(values) {
+		this.toggleModal("toggleAddCategoryModal");
+		this.props.postCategory(values.name, values.parent);
 	}
 
 	removeCategory(id) {
@@ -76,7 +83,6 @@ class Category extends Component {
 			)
 		};
 		if (this.props.categories.isFetching) {
-			alert("loading")
 			return (
 				<div>Loading</div>
 			)
@@ -87,21 +93,38 @@ class Category extends Component {
 			return (<div>{this.props.categories.errMess}</div>)
 		}
 
-		if (this.props.categories.items && this.match.isExact) {
+		if (window.location.pathname == "/admin/categories/all") {
 			return (
 				<div>
 					<CategoryList {...(this.props)}
 						removeCategory={this.removeCategory} />
-					<NewCategory
+					<AddCategoryModal
 						categories={this.props.categories.items}
-						postCategory={this.props.postCategory} />
+						postCategory={this.props.postCategory}
+						isModalOpen={this.isModalOpen}
+						toggleModal={this.toggleModal}
+						handleSubmit={this.handleSubmit}
+					/>
 
 				</div>
 			)
 		}
-		else{
-			return(
-				<Route path={`${this.props.match.path}/:categoryId`}  component={updateCategory} />
+
+		if (this.props.addCategory) {
+			return (
+				<AddCategoryModal
+					categories={this.props.categories.items}
+					postCategory={this.props.postCategory}
+					isModalOpen={this.isModalOpen}
+					toggleModal={this.toggleModal}
+					handleSubmit = {this.handleSubmit}
+				/>
+
+			)
+		}
+		else {
+			return (
+				<Route path={`${this.props.match.path}/:categoryId`} component={updateCategory} />
 			)
 		}
 	}
