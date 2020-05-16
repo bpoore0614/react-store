@@ -7,12 +7,12 @@ import { baseUrl } from '../../shared/baseUrl';
 
 const ProductList = props => (
     <div className="row" key="tags">
-        {props.products.items.map((product, i) => {
+        {props.items.map((product, i) => {
             return (
-                <div className="col-6 col-md-4 col-lg-2">
+                <div key={product._id + "userList"} className="col-6 col-md-4 col-lg-2">
                     <div className="row d-flex flex-column align-items-center">
                         <div className="">
-                            <img src={product.mainImage !== null ? baseUrl + "/" + product.mainImage.thumbnail : ""}
+                            <img src={product.mainImage !== null ? baseUrl + "/" + product.mainImage.original : ""}
                                 alt={product.alt}
                             />
                         </div>
@@ -27,7 +27,7 @@ const ProductList = props => (
                                 reviews={product.reviews} />
                         </div>
                         <div>
-                            <div>
+                            {/* <div>
                                 <Link to={`${props.match.path}/` + product._id}>
                                     <Button outline >
                                         <span className="fa fa-pencil fa-lg"></span>
@@ -37,7 +37,7 @@ const ProductList = props => (
                                     className="btn text-white bg-danger">
                                     <span className="txt-white">Delete</span>
                                 </Button>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

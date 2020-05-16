@@ -8,7 +8,8 @@ import Tag from './TagComponent';
 import Review from './review/ReviewComponent';
 import UpdateReview from './review/UpdateReviewComponent';
 import Image from './image/ImageComponent';
-import Product from './product/ProductComponent'
+import AdminProduct from './product/ProductComponent';
+import UserProduct from './product/UserProductComponent';
 import NotFoundPage from './notFoundPage';
 import Unathorized from './NotAuthorizedPage';
 // import Contact from './ContactComponent';
@@ -125,18 +126,21 @@ class Main extends Component {
         <Switch location={this.props.location}>
 
           <PrivateRoute path="/admin/tags" component={Tag} />
+          <PrivateRoute exact path="/admin/images/:imageId" component={Image} />
           <PrivateRoute path="/admin/images" component={Image} />
+         
           {/* <Route path='/users/:id' render={(props) => <UserDetail {...props}/>}/> */}
           <Route exact path='/tags' component={Tag} />
           {/* <PrivateRoute path='/tags/:tagId' component={updateTag} /> */}
           <PrivateRoute path='/admin/categories' component={Category} />
-          <PrivateRoute path='/admin/products' component={Product}/> 
-          
+          <PrivateRoute path='/admin/products' component={AdminProduct}/> 
+          <Route exact path='/product/:productName' component={UserProduct} />
+          <Route path='/product' component={UserProduct} />
           <Route exact path='/reviews' component={Review} />
           <Route path='/reviews/:reviewId' component={ReviewWithId} />
-          <Route exact path='/images' component={Image} />
+          <Route path='/images' component={Image} />
       
-          <Route exact path='/products/add-product' component={() => <Product addProduct ={true} />} /> 
+          <Route exact path='/products/add-product' component={() => <AdminProduct addProduct ={true} />} /> 
           
           <Route path='/unathorized' component={Unathorized} />
           {/* <Route path='/test' component={Pagination} /> */}

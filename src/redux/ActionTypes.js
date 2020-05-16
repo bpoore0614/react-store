@@ -138,16 +138,18 @@ export function fetchTags() {
     return (dispatch) => {
         return axios.get(baseUrl + '/tags/', {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}` }
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
         })
-            
+
             .then(response => {
                 console.log(JSON.stringify(response))
                 dispatch(receiveTags(response))
             })
             .catch(error => {
                 alert(JSON.stringify(error))
-                dispatch(tagsFailed(error))})
+                dispatch(tagsFailed(error))
+            })
 
             .finally(function () {
                 // always executed
@@ -274,7 +276,7 @@ export function fetchParents(tagId) {
         const config = {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         };
-        return axios.get(baseUrl+ '/tags' + '/parents/' + tagId,
+        return axios.get(baseUrl + '/tags' + '/parents/' + tagId,
             config)
             .then(response => dispatch(addTagParents(response)))
             .catch(error => dispatch(parentsFailed(error.message)))
@@ -318,7 +320,7 @@ export function fetchCategories() {
         const config = {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         };
-        return axios.get( baseUrl + '/categories/',
+        return axios.get(baseUrl + '/categories/',
             config)
             .then(response => {
                 dispatch(receiveCategories(response))
@@ -464,8 +466,8 @@ function loginError(message) {
 
 export const loginUser = (creds) => (dispatch) => {
     dispatch(requestLogin(creds))
-    
-    return axios.post(baseUrl +'/users/login/', creds)
+
+    return axios.post(baseUrl + '/users/login/', creds)
         .then(response => {
             localStorage.setItem('token', response.data.token);
             dispatch(receiveLogin(response.data))
@@ -697,7 +699,7 @@ function addMultiImage(image) {
     return { type: MULTI_IMAGE, payload: image }
 }
 
-function removeSelected(image) {
+function removeSelectedImage(image) {
     return { type: REMOVE_SELECTED_IMAGE, payload: image }
 }
 
@@ -731,18 +733,10 @@ export const fetchImages = () => (dispatch) => {
 }
 
 export const postImages = (values, formData) => (dispatch) => {
-    alert(JSON.stringify(values))
     formData.append('title', values.title ? values.title.value : null);
     formData.append('caption', values.caption ? values.caption.value : null);
     formData.append('alt', values.alt ? values.alt.value : null);
     formData.append('description', values.description ? values.description.value : null);
-
-
-    // let formData = new FormData();
-
-    // for (let x of img) {
-    //     formData.append('myFile', x);
-    // }
 
     const config = {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -770,7 +764,46 @@ export const postImages = (values, formData) => (dispatch) => {
         });
 }
 
+export const putImage = (values, id) => (dispatch) => {
+    const image = {
+        title: values.title ? values.title.value : null,
+        caption: values.caption ? values.caption.value : null,
+        alt: values.alt ? values.alt.value : null,
+        description: values.description ? values.description.value : null
+    }
 
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    axios.put(baseUrl + '/imageupload/' + id, image,
+        config)
+        .then(response => {
+            dispatch(receiveImages(response))
+        })
+        .catch(function (error) {
+            dispatch(imagesFailed(error.response.data))
+        })
+        .finally(function () {
+            // if (values.addToSingle) {
+            // }
+        });
+}
+
+export const removeImage = (id) => (dispatch) => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    axios.delete(baseUrl + '/imageupload/' + id,
+        config)
+        .then(response => {
+            dispatch(receiveImages(response))
+        })
+        .catch(function (error) {
+            dispatch(imagesFailed(error.response.data))
+        })
+        .finally(function () {
+        });
+}
 
 export const addSelectedImage = (image) => (dispatch) => {
     dispatch(addSelected(image))
@@ -779,9 +812,6 @@ export const dispatchMultiImage = (image) => (dispatch) => {
     dispatch(addMultiImage(image))
 }
 
-export const removeSelectedImage = (image) => (dispatch) => {
-    dispatch(removeSelected(image))
-}
 
 export const ADD_PRODUCT = "ADD_PRODUCT";
 export const INVALIDATE_PRODUCT = "INVALIDATE_PRODUCT";
@@ -811,7 +841,7 @@ function addProduct(product) {
 };
 
 function updateProduct(product) {
-    alert("in update prod")
+
     return {
         type: UPDATE_PRODUCT,
         payload: product.data
@@ -852,7 +882,6 @@ export function fetchProducts() {
         return axios.get(baseUrl + '/products/',
             config)
             .then(response => {
-                console.log(JSON.stringify(response))
                 dispatch(receiveProducts(response))
             })
             .catch(error => dispatch(productsFailed(error)))
@@ -889,6 +918,7 @@ export const postProduct = (values) => (dispatch) => {
 
 export const putProduct = (values, id) => (dispatch) => {
     const newCategory = {};
+
     newCategory.name = values.name.value;
     newCategory.description = values.description.value;
     newCategory.price = values.price.value;
@@ -911,6 +941,23 @@ export const putProduct = (values, id) => (dispatch) => {
         .finally(function () {
             // always executed
         });
+}
+
+export const removeProduct = (id) => (dispatch) => {
+
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    axios.delete(baseUrl + '/products/' + id,
+        config)
+        .then(response => dispatch(receiveProducts(response)))
+        .catch(function (error) {
+            alert(JSON.stringify(error))
+            dispatch(productsFailed(error.response))
+        })
+        .finally(function () {
+            // always executed
+        })
 }
 
 

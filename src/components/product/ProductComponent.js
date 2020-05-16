@@ -5,7 +5,7 @@ import { Control, LocalForm, Errors } from 'react-redux-form';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux'
 import {
-    postCategory, postTag, addProduct, putProduct, postProduct,
+    postCategory, postTag, addProduct, putProduct, postProduct, removeProduct,
     setProductPage, addSelectedImage, dispatchMultiImage, updateTagsState
 } from '../../redux/ActionTypes';
 import { baseUrl } from '../../shared/baseUrl'
@@ -22,6 +22,7 @@ import Paginate from '../Utility/Paginate';
 import Image from '../image/ImageComponent';
 import Category from '../category/CategoryComponent';
 import Tag from '../TagComponent';
+import ImageCarousel from '../../components/image/ImageCarouselComponent';
 
 const required = (val) => val && val.length;
 const maxLength = (len) => (val) => !(val) || (val.length <= len);
@@ -47,8 +48,8 @@ class Product extends Component {
         this.currentPage = 1;
     }
 
-    removeProduct(product_id) {
-        alert("remove " + product_id);
+    removeProduct(id) {
+        this.props.removeProduct(id);
     }
 
     toggleModal(id) {
@@ -103,11 +104,11 @@ class Product extends Component {
                 />
             )
         };
-        if (this.props.tags.isFetching || this.props.products.isFetching || this.props.categories.isFetching) {
-            return (
-                <div>Loading</div>
-            )
-        }
+        // if (this.props.tags.isFetching || this.props.products.isFetching || this.props.categories.isFetching) {
+        //     return (
+        //         <div>Loading</div>
+        //     )
+        // }
 
         if (this.props.tags.errMess || this.props.products.errMess || this.props.categories.errMess) {
             // todo list all err
@@ -159,6 +160,20 @@ class Product extends Component {
                 </div >
             )
         }
+
+        if (!this.props.products.isFetching && window.location.pathname === "/product/carousel") {
+            return (
+                <ImageCarousel
+                    items={this.props.products.items[0].carouselImages.map(img => (
+                        {
+                            src: baseUrl + "/" + img.original,
+                            altText: img.alt,
+                            caption: img.caption
+                        }
+                    ))}
+                />
+            )
+        }
         else {
             return (
                 <div className="container">
@@ -184,6 +199,7 @@ const mapDispatchToProps = (dispatch) => ({
     postTag: (name, parent) => dispatch(postTag(name, parent)),
     postProduct: (values) => dispatch(postProduct(values)),
     putProduct: (values, id) => dispatch(putProduct(values, id)),
+    removeProduct: (id) => dispatch(removeProduct(id)),
     setProductPage: (page) => dispatch(setProductPage(page))
     // sendFlashMessage: (name, className) => dispatch(sendFlashMessage(name, className))
 })

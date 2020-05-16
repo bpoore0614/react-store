@@ -1,6 +1,6 @@
 import React from 'react';
 import { Control, LocalForm, Errors } from 'react-redux-form';
-import { Button, Form, FormGroup, FormFeedback, Label, Input, FormText, Row, Col, Modal, ModalHeader, ModalBody, ModalFooter, Carousel } from 'reactstrap';
+import { Button, Form, FormGroup, FormFeedback, Label, CustomInput, Input, FormText, Row, Col, Modal, ModalHeader, ModalBody, ModalFooter, Carousel } from 'reactstrap';
 
 import { Link } from 'react-router-dom';
 import { baseUrl } from '../../shared/baseUrl';
@@ -8,7 +8,7 @@ import { formReducer } from 'react-redux-form';
 
 const AddImage = props => (
 
-    <Form onSubmit={() => props.handleUploadFilesSubmit()}>
+    <LocalForm onSubmit={() => props.handleUploadFilesSubmit()}>
         <FormGroup>
             <Label for="imageTitle">Title:</Label>
             <Input
@@ -66,16 +66,25 @@ const AddImage = props => (
             {props.image.description.errMess.map((err, i) => <FormFeedback key={"descriptionError" + i}>{err}</FormFeedback>)}
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup className={props.isEdit ? "d-none" : ""}>
             <Label htmlFor="files">Upload Picture: </Label>
-            <input type="file" name="myFile" accept="image/*" onChange={props.handleOnChangeUploadFiles} />
+            <CustomInput type="file"
+                name="myFile"
+                id="myFiles"
+                accept="image/*"
+                onChange={props.handleOnChangeUploadFiles}
+                valid={props.image.selectedImages.valid}
+                invalid={props.image.selectedImages.touched ? !props.image.selectedImages.valid : false}
+            />
+            {props.image.selectedImages.errMess.map((err, i) => <FormFeedback key={"fileError" + i}>{err}</FormFeedback>)}
+
         </FormGroup>
-        
+
         <FormGroup>
             <Button type="submit" color="primary">Submit</Button>
         </FormGroup>
 
-    </Form>
+    </LocalForm>
     // <LocalForm onSubmit={(values => props.handleUploadFilesSubmit(values))}>
     //     <FormGroup>
     //         <Label htmlFor="title">Title </Label>

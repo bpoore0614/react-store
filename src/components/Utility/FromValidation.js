@@ -38,11 +38,14 @@ export const validate = (event, stateObject) => {
                 }
                 break;
             case 'isDigit':
-                var re = /^\d+$/
-                if (!re.test(value)) {
-                    stateObject[name].valid = false;
-                    message = `${name.charAt(0).toUpperCase() + name.slice(1)} must be only numbers`;
-                    stateObject[name].errMess = [...stateObject[name].errMess, message];
+                try {
+                    const price = parseFloat(value)
+                } catch (error) {
+                    if (!(typeof (value) == 'number')) {
+                        stateObject[name].valid = false;
+                        message = `${name.charAt(0).toUpperCase() + name.slice(1)} must be only numbers`;
+                        stateObject[name].errMess = [...stateObject[name].errMess, message];
+                    }
                 }
                 break;
             case 'isEmail':
@@ -52,8 +55,36 @@ export const validate = (event, stateObject) => {
                     message = `${name.charAt(0).toUpperCase() + name.slice(1)} must be a valid email address`;
                     stateObject[name].errMess = [...stateObject[name].errMess, message];
                 }
+            case 'isObject':
+                if (!typeof (value) === 'object') {
+                    stateObject[name].valid = false;
+                    message = "Image must be selected";
+                    stateObject[name].errMess = [...stateObject[name].errMess, message];
+                }
+
             default: stateObject[name].valid = true
         }
     }
     return stateObject
+}
+
+export const checkIfFormValid = (stateObject) => {
+    let isFormValid = true;
+    for (let item in stateObject) {
+        if (stateObject[item].valid === false) {
+            alert(stateObject[item].value)
+            isFormValid = false;
+        }
+    }
+    return isFormValid;
+}
+
+export const formSubmitErrors = (stateObject) => {
+    for (let item in stateObject) {
+        if (stateObject[item].errMess && stateObject[item].errMess.length < 1) {
+            stateObject[item].touched = true;
+            stateObject[item].errMess = ["Required"];
+        }
+    }
+    return stateObject;
 }

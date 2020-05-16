@@ -22,7 +22,6 @@ const NewReview = props => (
             <ModalHeader toggle={props.toggleModal}>Submit New Review</ModalHeader>
             <ModalBody>
                 <ReviewForm
-                    // categories={this.props.categories}
                     handleReviewSubmit={props.handleReviewSubmit} />
             </ModalBody>
 

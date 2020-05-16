@@ -43,7 +43,7 @@ class ImagePicker extends React.Component {
     }
 
     formatPicked() {
-        this.props.multiple ? this.props.toggelModal("toggleMultiImageModal") : this.props.toggelModal("toggleMainImageModal")
+        this.props.multiple ? this.props.toggleModal("toggleMultiImageModal") : this.props.toggleModal("toggleMainImageModal")
         return this.state.picked.toIndexedSeq().toArray()
     }
 

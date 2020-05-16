@@ -7,16 +7,20 @@ import ImagePicker from '../image/ImagePickerComponent';
 import Paginate from '../Utility/Paginate';
 
 import { validate } from '../Utility/FromValidation';
+import { formSubmitErrors } from '../Utility/FromValidation';
+import {checkIfFormValid } from '../Utility/FromValidation';
 import { formErrMess } from '../Utility/FromValidation';
 import ImageComponent from '../image/ImageComponent';
+import ImagePickerModal from '../image/ImagePickerModal';
+
 
 class ProductForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             imagePage: 1,
-            isFormValid: false,
             product: {
+                isFormValid: false,
                 name: {
                     value: '',
                     placeholder: 'Product Name',
@@ -68,88 +72,70 @@ class ProductForm extends React.Component {
 
         };
 
+        this.product = {...this.state.product};
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCheckbox = this.handleCheckbox.bind(this);
         this.onPickSingle = this.onPickSingle.bind(this);
         this.onPickMultiple = this.onPickMultiple.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
+        this.isModalOpen = this.isModalOpen.bind(this);
     }
 
 
     handleChange(event) {
-        const product = { ...this.state.product}
-        const validatedProduct = validate(event, product);
+        const validatedProduct = validate(event, this.product);
         this.setState({
             product: validatedProduct
         });
-
-        let formValid = true;
-        for (let productItem in product) {
-            if (product[productItem].valid === false) {
-                formValid = false;
-                break;
-            }
-        }
-        this.setState({ isFormValid: formValid })
     }
     handleCheckbox(event) {
         const name = event.target.name;
         const value = event.target.value
-        const product = { ...this.state.product }
         if (name === "tag_group[]") {
-            product.tags = product.tags.includes(value) ? product.tags.filter(tag => tag !== value) : [...product.tags, value]
+            this.product.tags = this.product.tags.includes(value) ? this.product.tags.filter(tag => tag !== value) : [...this.product.tags, value]
         } else if (name === "category_group[]") {
-            product.categories = product.categories.includes(value) ? product.categories.filter(category => category !== value) : [...product.categories, value]
+            this.product.categories = this.product.categories.includes(value) ? this.product.categories.filter(category => category !== value) : [...this.product.categories, value]
 
         }
         this.setState({
-            product: product
+            product: this.product
         });
 
     }
 
     removeImageHandler(image, multiple = false) {
-        const product = { ...this.state.product };
         if (multiple) {
-            product.carouselImages.images = product.carouselImages.images.filter(img => img._id != image._id)
+            this.product.carouselImages.images = this.product.carouselImages.images.filter(img => img._id != image._id)
         } else {
-            product.mainImage.image = null;
+            this.product.mainImage.image = null;
         }
-        this.setState({ product: product })
-
-        // const index = product.carouselImages.values.findIndex(value => value === id);
-        // product.carouselImages.values = product.carouselImages.values = product.carouselImages.values.filter((val, i) => i !== index)
-        // product.carouselImages.sources = product.carouselImages.sources.filter((src, i) => i !== index)
-        // this.setState({
-        //     product: product
-        // })
+        this.setState({ product: this.product })
     }
 
     componentDidMount() {
         if (this.props.product) {
-            const product = { ...this.state.product }
-            product.name.value = this.props.product.name;
-            product.name.valid = true;
+            this.product.name.value = this.props.product.name;
+            this.product.name.valid = true;
 
-            product.description.value = this.props.product.description;
-            product.description.valid = true;
+            this.product.description.value = this.props.product.description;
+            this.product.description.valid = true;
 
-            product.price.value = this.props.product.price;
-            product.price.valid = true;
+            this.product.price.value = (this.props.product.price / 100).toFixed(2);
+            this.product.price.valid = true;
 
             if (this.props.product.mainImage) {
-                product.mainImage.image = this.props.product.mainImage;
+                this.product.mainImage.image = this.props.product.mainImage;
             }
             if (this.props.product.carouselImages) {
-                product.carouselImages.images = this.props.product.carouselImages;
+                this.product.carouselImages.images = this.props.product.carouselImages;
             }
-            product.featured.value = this.props.product.featured;
-            product.categories = this.props.product.categories;
-            product.tags = this.props.product.tags;
+            this.product.featured.value = this.props.product.featured;
+            this.product.categories = this.props.product.categories;
+            this.product.tags = this.props.product.tags;
+            this.product.isFormValid = true;
             this.setState({
-                isFormValid: true,
-                product: product
+                product: this.product
             })
 
         }
@@ -157,18 +143,12 @@ class ProductForm extends React.Component {
 
 
     handleSubmit(event) {
-        // this.props.history.push("/admin/products")
-        if (!this.state.isFormValid) {
-            const product = { ...this.state.product }
-            for (let productItem in product) {
-                if (product[productItem].errMess && product[productItem].errMess.length < 1) {
-                    product[productItem].touched = true;
-                    product[productItem].errMess = ["Required"]
-                }
-            }
-            this.setState({ product: product })
+        if (!checkIfFormValid(this.product)) {
+            const errors = formSubmitErrors(this.product)
+            this.setState({ product: errors })
         } else {
             if (this.props.product) {
+                alert(this.product.price.value)
                 this.props.putProduct(this.state.product, this.props.product._id)
                 this.props.redirect()
 
@@ -181,16 +161,14 @@ class ProductForm extends React.Component {
 
 
     onPickSingle(image) {
-        var product = { ...this.state.product }
-        product.mainImage.image = image[0];
-        this.setState({ product: product })
+        this.product.mainImage.image = image[0];
+        this.setState({ product: this.product })
     }
 
 
     onPickMultiple(images) {
-        var product = { ...this.state.product };
-        product.carouselImages.images = [...product.carouselImages.images, ...images]
-        this.setState({ product: product })
+        this.product.carouselImages.images = [...this.product.carouselImages.images, ...images]
+        this.setState({ product: this.product })
     }
 
     toggleModal(id) {
@@ -311,74 +289,52 @@ class ProductForm extends React.Component {
                 }
 
                 <FormGroup>
-                    <div className="d-inline-block">
-                        <Button outline onClick={() => this.toggleModal("toggleMainImageModal")}>
-                            <span className="fa-lg"> Select Main Image</span>
-                        </Button >
-                        <Modal isOpen={this.isModalOpen("isMainModalOpen")} toggle={() => this.toggleModal("toggleMainImageModal")}
-                            className="modal-dialog-full-width" >
-                            <ModalHeader toggle={() => this.toggleModal("toggleMainImageModal")}>Select Main Image</ModalHeader>
-                            <ModalBody>
-                                <ImageComponent
-                                    imagePicker={true}
-                                    multiple={false}
-                                    onPickSingle={this.onPickSingle}
-                                    toggelModal={this.toggleModal}
-                                />
-                            </ModalBody>
-                        </Modal>
-                    </div>
+                    <ImagePickerModal
+                        imagePicker={true}
+                        multiple={false}
+                        onPickSingle={this.onPickSingle}
+                        toggleModal={this.toggleModal}
+                        isModalOpen={this.isModalOpen}
+                    />
+
                 </FormGroup>
 
                 <div className="row">
                     <div className="col-12">Selected Main Image: </div>
                     {this.state.product.mainImage && this.state.product.mainImage.image
                         ?
-                        <div className="col-xs-4 col-sm-4 col-md-3 col-lg-2 position-relative ">
+                        <div className="mr-1 ml-1 position-relative" key={"selectedCarousel"}>
                             <Button onClick={() => this.removeImageHandler(this.state.product.mainImage.image)}
-                                className="bottom-r mr-3 position-absolute text-danger">
-                                <i className="fa fa-minus-circle fa-2x" />
+                                className="bottom-r position-absolute text-danger">
+                                <i className="fa fa-minus-circle" />
                             </Button>
-                            <img className="w-100" src={baseUrl + "/" + this.state.product.mainImage.image.original} alt="Product main image"></img>
+                            <img className="border border-dark p-1 rounded image-hover" src={baseUrl + "/" + this.state.product.mainImage.image.original} alt={"Product main image"}></img>
                         </div>
 
                         : ""}
                 </div>
 
-                <div className="d-inline-block">
-                    <Button outline onClick={() => this.toggleModal("toggleMultiImageModal")}>
-                        <span className="fa-lg"> Select Carousel Images</span>
-                    </Button >
-                    <Modal isOpen={this.isModalOpen("isMultiImageModalOpen")} toggle={() => this.toggleModal("toggleMultiImageModal")}
-                        className="modal-dialog-full-width" >
-                        <ModalHeader toggle={() => this.toggleModal("toggleMultiImageModal")}>
-                            Select Carousel Images
-                        </ModalHeader>
-                        <ModalBody>
-                            <ImageComponent
-                                imagePicker={true}
-                                multiple={true}
-                                onPickMultiple={this.onPickMultiple}
-                                toggelModal={this.toggleModal}
-                            />
-                        </ModalBody>
-                    </Modal>
-                </div>
-
+                <ImagePickerModal
+                    imagePicker={true}
+                    multiple={true}
+                    onPickMultiple={this.onPickMultiple}
+                    toggleModal={this.toggleModal}
+                    isModalOpen={this.isModalOpen}
+                />
 
                 <div className="row">
                     <div className="col-12">Selected Carousel Images: </div>
                     {this.state.product.carouselImages
                         ?
-                        this.state.product.carouselImages.images.map((img, i) => (
-                            <div className="col-xs-4 col-md-3 col-lg-2 position-relative w-100 " key={img + "selectedCarousel" + i}>
+                        this.state.product.carouselImages.images.map((img, i) => ((
+                            <div className="mr-1 ml-1 position-relative" key={"selectedCarousel" + i}>
                                 <Button onClick={() => this.removeImageHandler(img, true)}
-                                    className="bottom-r mr-3 position-absolute text-danger">
-                                    <i className="fa fa-minus-circle fa-2x" />
+                                    className="bottom-r position-absolute text-danger">
+                                    <i className="fa fa-minus-circle" />
                                 </Button>
-                                <img className="w-100" src={baseUrl + "/" + img.original} alt={"Product carousel image" + i + 1}></img>
+                                <img className="border border-dark p-1 rounded image-hover" src={baseUrl + "/" + img.original} alt={"Product carousel image" + i + 1}></img>
                             </div>
-                        ))
+                        )))
                         : ""
                     }
                 </div>

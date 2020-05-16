@@ -9,6 +9,7 @@
 .selected {
     position: relative;
     background-color: rgba(0, 140, 186, 1);
+    box-shadow: 0 0 3px 2px rgba(0, 140, 186, 0.7);
 }
     .checked {
         display: inline-block;

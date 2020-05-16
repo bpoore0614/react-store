@@ -4,7 +4,6 @@ import { Control, LocalForm, Errors } from 'react-redux-form';
 import CategoryForm from '../category/CategoryFormComponent';
 import NewCategory from '../category/NewCategoryComponent';
 import NewTag from '../NewTagComponent'
-import ImageListMulti from '../image/ImageListMultiComponent';
 import ImageListSingle from '../image/ImageListSingleComponent';
 import { baseUrl } from '../../shared/baseUrl';
 import ImagePicker from 'react-image-picker';

@@ -47,11 +47,21 @@ code {
   border-bottom-right-radius: 5px;
 }
 
+
 .bottom-r {
-  background-color: white;
   bottom: 0;
   right: 0;
 }
+
+.top-l {
+  top: 0;
+  left: 0;
+}
+
+.pointer{
+  cursor: pointer;
+}
+
 
 .modal-dialog-full-width {
   width: 100% !important;
