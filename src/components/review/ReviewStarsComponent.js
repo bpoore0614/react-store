@@ -4,24 +4,28 @@ import { Link } from 'react-router-dom';
 import './index.css';
 
 function reviewPercentage(reviews) {
-    const ratings=[];
-    reviews.forEach(review =>{
+    const ratings = [];
+    reviews.forEach(review => {
         ratings.push(review.rating)
     })
-    
+
     if (ratings.length > 0) {
-        const percentage = ((ratings.reduce((x,y)=> x+y,0)/ratings.length)/5)*100
-        return percentage+"%";
+        const percentage = ((ratings.reduce((x, y) => x + y, 0) / ratings.length) / 5) * 100
+        return percentage + "%";
     }
     return "0%";
 }
 
-const ReviewStars = props => (
+export const ReviewStars = props => (
     <div className="rating-box">
         <div className="rating" style={{ width: reviewPercentage(props.reviews) }}></div>
     </div>
-
-
 )
 
-export default ReviewStars;
+export const SingleReviewStars = props => (
+    <div className="rating-box">
+        <div className="rating" style={{ width: ((props.review.rating / 5) * 100)}}></div>
+    </div>
+)
+
+// export default ReviewStars;

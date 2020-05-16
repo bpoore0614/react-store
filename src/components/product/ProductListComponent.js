@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardImg, CardImgOverlay, CardTitle, Breadcrumb, BreadcrumbItem, FormGroup, Button, Modal, ModalHeader, ModalBody, Label } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import ReviewStars from '../review/ReviewStarsComponent';
+import {ReviewStars} from '../review/ReviewStarsComponent';
 import { baseUrl } from '../../shared/baseUrl';
 
 

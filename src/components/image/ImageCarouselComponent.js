@@ -50,20 +50,20 @@ class ImageCarousel extends Component {
         return (
             <div className="containter-fluid">
                 <div className="row">
-                    <div className="d-none d-md-block col-md-1 p-0">
+                    <div className="d-none d-md-block col-md-2 p-0">
                         <ul className="list-unstyled">
                             {product.carouselImages.map(img => (
                                 <li className="mb-2" id={img._id + "carousel"} key={img._id + "carousel"}>
                                     <img
                                         onMouseEnter={() => this.selectImage(img)}
-                                        className={`${selectedImage === img ? " selected" : " "} w-100 image-hover border border-dark rounded `}
+                                        className={`${selectedImage === img ? " selected" : " "} ml-4 w-75 image-hover border border-dark rounded `}
                                         src={baseUrl + "/" + img.original}
                                         alt={img.alt} />
                                 </li>
                             ))}
                         </ul>
                     </div>
-                    <div className="col-12 col-md-11 position-relative pointer"
+                    <div className="col-12 col-md-10 position-relative pointer"
                         onMouseDown={this.setStartXAxis.bind(this)}
                         onMouseUp={this.setNextImage.bind(this)}
                         onTouchStart={this.setStartXAxis.bind(this)}

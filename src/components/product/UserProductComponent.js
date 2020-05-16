@@ -9,15 +9,15 @@ import {
     setProductPage, addSelectedImage, dispatchMultiImage, updateTagsState
 } from '../../redux/ActionTypes';
 import NotFoundPage from '../notFoundPage';
+import DisplayProduct from './UserDispayProductComponent';
 
 
 import { baseUrl } from '../../shared/baseUrl'
 import { UncontrolledCarousel } from 'reactstrap';
 import { findDOMNode } from 'react-dom';
 import $ from 'jquery';
-// import ProductForm from './ProductFormComponpent';
+
 import ProductForm from './ProductForm';
-import ImageCarousel from '../image/ImageCarouselComponent';
 import ImagePicker from 'react-image-picker'
 import 'react-image-picker/dist/index.css'
 import BulkAddImage from '../image/BulkAddImageComponent';
@@ -36,48 +36,34 @@ class UserProduct extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selected: [],
-            isUploadOneModalOpen: false,
-            isUploadMultiModalopen: false,
-            isMultiImageModalOpen: false,
-            isMainImageModalOpen: false,
-            singleImage: null,
-            multiImage: null,
-            selectedImages: null,
-            tagsInForm: null,
-            categoriesInForm: [],
-            tagsSet: false
+
         }
         this.currentPage = 1;
     }
 
-    removeProduct(id) {
-        this.props.removeProduct(id);
-    }
-
     toggleModal(id) {
         switch (id) {
-            case "toggleUploadOneModal":
-                return this.setState({ isUploadOneModalOpen: !this.state.isUploadOneModalOpen })
-            case "isUploadMultiModalOpen":
-                return this.setState({ isUploadMultiModalOpen: !this.state.isUploadMultiModalOpen })
-            case "toggleMainImageModal":
-                return this.setState({ isMainImageModalOpen: !this.state.isMainImageModalOpen })
-            case "toggleMultiImageModal":
-                return this.setState({ isMultiImageModalOpen: !this.state.isMultiImageModalOpen })
+            // case "toggleUploadOneModal":
+            //     return this.setState({ isUploadOneModalOpen: !this.state.isUploadOneModalOpen })
+            // case "isUploadMultiModalOpen":
+            //     return this.setState({ isUploadMultiModalOpen: !this.state.isUploadMultiModalOpen })
+            // case "toggleMainImageModal":
+            //     return this.setState({ isMainImageModalOpen: !this.state.isMainImageModalOpen })
+            // case "toggleMultiImageModal":
+            //     return this.setState({ isMultiImageModalOpen: !this.state.isMultiImageModalOpen })
         }
     }
 
     isModalOpen(id) {
         switch (id) {
-            case "isUploadOneModalOpen":
-                return this.state.isUploadOneModalOpen;
-            case "isUploadMultiModalOpen":
-                return this.state.isUploadMultiModalOpen;
-            case "isMainModalOpen":
-                return this.state.isMainImageModalOpen;
-            case "isMultiImageModalOpen":
-                return this.state.isMultiImageModalOpen;
+            // case "isUploadOneModalOpen":
+            //     return this.state.isUploadOneModalOpen;
+            // case "isUploadMultiModalOpen":
+            //     return this.state.isUploadMultiModalOpen;
+            // case "isMainModalOpen":
+            //     return this.state.isMainImageModalOpen;
+            // case "isMultiImageModalOpen":
+            //     return this.state.isMultiImageModalOpen;
         }
     }
     componentDidMount() {
@@ -93,17 +79,17 @@ class UserProduct extends Component {
             if (currentProduct) {
                 return (
                     <div>
-                        {currentProduct.name}
+                        <DisplayProduct
+                            product={currentProduct}
+                            toggleShowReviewsDescription ={() => this.toggleShowReviewsDescription()}
+                            showReviews={this.state.showReviews}
+                            showDescription={this.state.showDescription}
+                        />
                     </div>
                 )
             } else {
                 return (
-                    <div className="col-12 col-md-6">
-                        <ImageCarousel
-                            product={products.items.find(product => product.name === "review item")}
-                        />
-                    </div>
-                    // <Route path="*" component={NotFoundPage} />
+                    <Route path="*" component={NotFoundPage} />
                 )
             }
 
