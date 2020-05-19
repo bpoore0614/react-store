@@ -61,6 +61,14 @@ export const validate = (event, stateObject) => {
                     message = "Image must be selected";
                     stateObject[name].errMess = [...stateObject[name].errMess, message];
                 }
+            case 'hasImages':
+                alert("test")
+                if ((value).length === 0) {
+                    alert("test")
+                    stateObject[name].valid = false;
+                    message = "At least one image is required in carousel";
+                    stateObject[name].errMess = [...stateObject[name].errMess, message];
+                }
 
             default: stateObject[name].valid = true
         }
@@ -72,7 +80,6 @@ export const checkIfFormValid = (stateObject) => {
     let isFormValid = true;
     for (let item in stateObject) {
         if (stateObject[item].valid === false) {
-            alert(stateObject[item].value)
             isFormValid = false;
         }
     }
@@ -81,9 +88,13 @@ export const checkIfFormValid = (stateObject) => {
 
 export const formSubmitErrors = (stateObject) => {
     for (let item in stateObject) {
-        if (stateObject[item].errMess && stateObject[item].errMess.length < 1) {
+        if (stateObject[item].valid === false) {
             stateObject[item].touched = true;
+        }
+        if (stateObject[item].errMess && stateObject[item].errMess.length < 1) {
             stateObject[item].errMess = ["Required"];
+
+
         }
     }
     return stateObject;

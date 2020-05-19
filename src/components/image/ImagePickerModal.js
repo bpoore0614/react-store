@@ -6,7 +6,7 @@ import ImageComponent from './ImageComponent';
 
 const ImagePickerModal = props => (
     <div className="d-inline-block">
-        <Button outline onClick={() => props.toggleModal(props.multiple ? "toggleMultiImageModal" : "toggleMainImageModal")}>
+        <Button className={props.invalid ? "border border-danger" : ""} outline onClick={() => props.toggleModal(props.multiple ? "toggleMultiImageModal" : "toggleMainImageModal")}>
             <span className="fa-lg">{props.multiple ? "Select Carousel Images" : "Select Main Image"}</span>
         </Button >
         <Modal isOpen={props.isModalOpen(props.multiple ? "isMultiImageModalOpen" : "isMainModalOpen")} toggle={() => props.toggleModal(props.multiple ? "toggleMultiImageModal" : "toggleMainImageModal")}

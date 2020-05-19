@@ -8,7 +8,7 @@ import Paginate from '../Utility/Paginate';
 
 import { validate } from '../Utility/FromValidation';
 import { formSubmitErrors } from '../Utility/FromValidation';
-import {checkIfFormValid } from '../Utility/FromValidation';
+import { checkIfFormValid } from '../Utility/FromValidation';
 import { formErrMess } from '../Utility/FromValidation';
 import ImageComponent from '../image/ImageComponent';
 import ImagePickerModal from '../image/ImagePickerModal';
@@ -57,10 +57,16 @@ class ProductForm extends React.Component {
                     touched: false
                 },
                 mainImage: {
-                    image: null
+                    image: null,
+                    valid: false,
+                    errMess: ["At least one main image is required"],
+                    touched: false
                 },
                 carouselImages: {
                     images: [],
+                    valid: false,
+                    errMess: ["At least one carousel image is required"],
+                    touched: false,
                 },
                 featured: {
                     value: false,
@@ -72,7 +78,7 @@ class ProductForm extends React.Component {
 
         };
 
-        this.product = {...this.state.product};
+        this.product = { ...this.state.product };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCheckbox = this.handleCheckbox.bind(this);
@@ -107,8 +113,17 @@ class ProductForm extends React.Component {
     removeImageHandler(image, multiple = false) {
         if (multiple) {
             this.product.carouselImages.images = this.product.carouselImages.images.filter(img => img._id != image._id)
+            if (this.product.carouselImages.images.length === 0) {
+                this.product.carouselImages.valid = false;
+                this.product.carouselImages.touched = true;
+                this.product.carouselImages.errMess = "At least one carousel image is required"
+
+            }
         } else {
             this.product.mainImage.image = null;
+            this.product.mainImage.valid = false;
+            this.product.mainImage.touched = true;
+            this.product.mainImage.errMess = "At least one main image is required"
         }
         this.setState({ product: this.product })
     }
@@ -126,9 +141,13 @@ class ProductForm extends React.Component {
 
             if (this.props.product.mainImage) {
                 this.product.mainImage.image = this.props.product.mainImage;
+                this.product.mainImage.image !== null ? this.product.mainImage.valid = true :this.product.mainImage.valid = false;
+                
             }
             if (this.props.product.carouselImages) {
                 this.product.carouselImages.images = this.props.product.carouselImages;
+                this.product.carouselImages.images.length > 0 ?  this.product.carouselImages.valid = true : this.product.carouselImages.valid = false
+               
             }
             this.product.featured.value = this.props.product.featured;
             this.product.categories = this.props.product.categories;
@@ -162,12 +181,16 @@ class ProductForm extends React.Component {
 
     onPickSingle(image) {
         this.product.mainImage.image = image[0];
+        this.product.mainImage.valid = true;
+        this.product.mainImage.errMess = [];
         this.setState({ product: this.product })
     }
 
 
     onPickMultiple(images) {
         this.product.carouselImages.images = [...this.product.carouselImages.images, ...images]
+        this.product.carouselImages.valid = true;
+        this.product.carouselImages.errMess = [];
         this.setState({ product: this.product })
     }
 
@@ -197,6 +220,7 @@ class ProductForm extends React.Component {
         }
     }
     render() {
+        alert(this.product.carouselImages.valid)
         return (
 
             <Form>
@@ -295,7 +319,11 @@ class ProductForm extends React.Component {
                         onPickSingle={this.onPickSingle}
                         toggleModal={this.toggleModal}
                         isModalOpen={this.isModalOpen}
+                        invalid = {this.state.product.mainImage.touched && this.state.product.mainImage.errMess.length > 0}
                     />
+                    <div className="text-danger" style={{ fontSize: "12.8px" }}>
+                        {this.state.product.mainImage.touched ? this.state.product.mainImage.errMess : ''}
+                    </div>
 
                 </FormGroup>
 
@@ -320,8 +348,11 @@ class ProductForm extends React.Component {
                     onPickMultiple={this.onPickMultiple}
                     toggleModal={this.toggleModal}
                     isModalOpen={this.isModalOpen}
+                    invalid = {this.state.product.carouselImages.touched && this.state.product.carouselImages.errMess.length > 0}
                 />
-
+                <div className="text-danger" style={{ fontSize: "12.8px" }}>
+                    {this.state.product.carouselImages.touched ? this.state.product.carouselImages.errMess : ''}
+                </div>
                 <div className="row">
                     <div className="col-12">Selected Carousel Images: </div>
                     {this.state.product.carouselImages

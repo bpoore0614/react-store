@@ -10,6 +10,7 @@ import UpdateReview from './review/UpdateReviewComponent';
 import Image from './image/ImageComponent';
 import AdminProduct from './product/ProductComponent';
 import UserProduct from './product/UserProductComponent';
+import UserProudctList from './product/UserProductList';
 import NotFoundPage from './notFoundPage';
 import Unathorized from './NotAuthorizedPage';
 // import Contact from './ContactComponent';
@@ -134,7 +135,8 @@ class Main extends Component {
           {/* <PrivateRoute path='/tags/:tagId' component={updateTag} /> */}
           <PrivateRoute path='/admin/categories' component={Category} />
           <PrivateRoute path='/admin/products' component={AdminProduct}/> 
-          <Route exact path='/product/:productName' component={UserProduct} />
+          <Route exact path='/product/all' component={() => <UserProudctList items ={this.props.products.items} />} />
+          <Route exact path='/product/:productName' component={UserProduct} /> 
           <Route path='/product' component={UserProduct} />
           <Route exact path='/reviews' component={Review} />
           <Route path='/reviews/:reviewId' component={ReviewWithId} />
@@ -177,7 +179,8 @@ const mapDispatchToProps = (dispatch) => ({
 })
 const mapStateToProps = state => {
   return {
-    auth: state.Auth
+    auth: state.Auth,
+    products: state.Products
   }
 }
 

@@ -15,8 +15,8 @@ import $ from 'jquery';
 // import ProductForm from './ProductFormComponpent';
 import ProductForm from './ProductForm';
 import ProductList from './ProductListComponent';
-import ImagePicker from 'react-image-picker'
-import 'react-image-picker/dist/index.css'
+// import ImagePicker from 'react-image-picker'
+// import 'react-image-picker/dist/index.css'
 import BulkAddImage from '../image/BulkAddImageComponent';
 import Paginate from '../Utility/Paginate';
 import Image from '../image/ImageComponent';
@@ -122,20 +122,17 @@ class Product extends Component {
                     <ProductList {...(this.props)}
                         removeProduct={this.removeProduct.bind(this)}
                     />
-                    <Link to={`${this.props.match.path}/add`} >
-                        <Button>
-                            <Link to={"/add"} />Add New Product
-                    </Button>
-                    </Link>
+                    <Link to={`${this.props.match.path}/add`}></Link>
+                    <Link className="Button" to={"/add"} >Add New Product</Link>
 
 
-                    <div>
+                    {/* <div>
                         <Paginate
                             totalRecords={350}
                             pageLimit={25}
                             currentPage={this.props.products.page}
                         />
-                    </div>
+                    </div> */}
                 </div >
             )
         }
@@ -152,8 +149,8 @@ class Product extends Component {
                             />
                         </div>
                         <div className="col-xs-12 col-lg-4">
-                            <Image addImage ={true}/>
-                            <Category addCategory={true}/>
+                            <Image addImage={true} />
+                            <Category addCategory={true} />
                             <Tag addTag={true} />
                         </div>
                     </div>

@@ -62,6 +62,23 @@ code {
   cursor: pointer;
 }
 
+.aqua-background{
+  background: url('./components/header/images/aqua_background.png');
+
+}
+
+.dropdown-divider{
+  border-top-color: rgb(241, 96, 124) !important
+}
+
+.salmon-color{
+  color:  rgb(241, 96, 124) !important
+}
+
+
+body{
+ background: #f0f0f0;
+}
 
 .modal-dialog-full-width {
   width: 100% !important;

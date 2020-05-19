@@ -7,6 +7,7 @@ import categories from './categories';
 import auth from './auth';
 import reviews from './reviews';
 import images from './images';
+import cart from './cart';
 // import { Promotions } from './promotions';
 // import { Leaders } from './leaders';
 import thunk from 'redux-thunk';
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   Reviews: reviews,
   FlashMessage: flashMessage,
   Images: images,
+  Cart: cart
 
 })
 

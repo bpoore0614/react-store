@@ -18,8 +18,6 @@ import { findDOMNode } from 'react-dom';
 import $ from 'jquery';
 
 import ProductForm from './ProductForm';
-import ImagePicker from 'react-image-picker'
-import 'react-image-picker/dist/index.css'
 import BulkAddImage from '../image/BulkAddImageComponent';
 import Paginate from '../Utility/Paginate';
 import Image from '../image/ImageComponent';
@@ -75,7 +73,7 @@ class UserProduct extends Component {
         if (!this.props.products.isFetching && !this.props.tags.isFetching && !this.props.categories.isFetching
             && !this.props.images.isFetching) {
             const formatedProductName = match.params.productName.replace("-", " ");
-            const currentProduct = products.items.find(product => product.name === formatedProductName)
+            const currentProduct = products.items.find(product => product.name.toLowerCase() === formatedProductName.toLowerCase())
             if (currentProduct) {
                 return (
                     <div>
@@ -92,8 +90,6 @@ class UserProduct extends Component {
                     <Route path="*" component={NotFoundPage} />
                 )
             }
-
-
         } else {
             return (
                 <div>LOADING</div>

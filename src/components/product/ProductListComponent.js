@@ -6,10 +6,10 @@ import { baseUrl } from '../../shared/baseUrl';
 
 
 const ProductList = props => (
-    <div className="row" key="tags">
+    <div className="row">
         {props.products.items.map((product, i) => {
             return (
-                <div className="col-6 col-md-4 col-lg-2">
+                <div className="col-6 col-md-4 col-lg-2" key={product._id + "prodlist"}>
                     <div className="row d-flex flex-column align-items-center">
                         <div className="">
                             <img src={product.mainImage !== null ? baseUrl + "/" + product.mainImage.thumbnail : ""}

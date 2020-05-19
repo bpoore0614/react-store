@@ -14,7 +14,6 @@ function formatDate(unformattedDate) {
     const dateTimeFormat = new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: '2-digit' })
     const [{ value: month }, , { value: day }, , { value: year }] = dateTimeFormat.formatToParts(date)
     return (`${month}-${day}-${year}`)
-
 }
 
 const Reviews = (props) => (
@@ -43,7 +42,6 @@ const Description = (props) => (
 
 )
 
-
 const DispayProduct = props => {
     const [section, setSection] = useState({ reviews: false, description: true });
     const { product } = props;
@@ -54,14 +52,14 @@ const DispayProduct = props => {
         switchedSection.description = !switchedSection.description;
         setSection(switchedSection)
     }
-
     return (
-        <div className="container-fluid">
+        <div className="container-fluid mt-3">
             <div className="row" key="tags">
                 <div className="col-12 d-md-none text-center font-weight-bold">
                     <h2>{product.name}</h2>
+                    <hr className="dropdown-divider" />
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="offset-2 offset-md-0 col-8 col-md-4">
                     <div className="">
                         <ImageCarousel
                             product={product}
@@ -72,26 +70,44 @@ const DispayProduct = props => {
                 <div className="col-12 col-md-6 text-center text-md-left">
                     <div className="d-none d-md-block font-weight-bold">
                         <h2>{product.name}</h2>
+                        <hr className="dropdown-divider" />
                     </div>
-                    <ReviewStars
-                        reviews={product.reviews}
-                    />
-                    <p>${(product.price / 100).toFixed(2)}</p>
-                    <AddToCart />
-                    <div>Categories:
+                    <div className="mb-1">
+                        Categories:
                         {product.categories.map((category, i) => (
                         <Link to={"#"} className="text-capitalize">
                             {i < product.categories.length - 1 ? category.name + ", " : category.name}
                         </Link>
                     ))}
                     </div>
-                    <div>Tags:
+                    <div className="mb-2">Tags:
                         {product.tags.map((tag, i) => (
                         <Link to={"#"} className="text-capitalize">
                             {i < product.tags.length - 1 ? tag.name + ", " : tag.name}
                         </Link>
                     ))}
                     </div>
+
+                    <div className="mb-2">
+                        <ReviewStars
+                            reviews={product.reviews}
+                        />
+                    </div>
+
+                    <div className="mb-1">
+                        <span className="mr-3 font-weight-bold">${(product.price / 100).toFixed(2)}</span>
+                    </div>
+                    <div>
+                        <span className=" justify-content-center"><AddToCart /></span>
+                    </div>
+
+                    {/* </div> */}
+
+                </div>
+
+                <div className="col-2">
+                    <p>todo</p>
+                    <p>this will display a table</p>
                 </div>
             </div>
 
@@ -129,6 +145,12 @@ const DispayProduct = props => {
                             />
                         </div>
                     }
+                </div>
+            </div>
+            <div className="row">
+                <div className="col-12">
+                    <p>todo</p>
+                    <p>this will display like items</p>
                 </div>
             </div>
         </div >
