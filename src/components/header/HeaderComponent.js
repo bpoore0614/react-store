@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 // import { baseUrl } from '../shared/baseUrl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux'
-import LoginForm from '../user/LoginFormComponent';
 import FlashMessage from '../Utility/FlashMessage';
 import {
     Collapse,
@@ -39,6 +38,8 @@ import {
 } from '../../redux/ActionTypes';
 import Login from '../user/LoginComponent';
 import './index.css';
+import { CartModal } from '../cart/CartModalComponent';
+
 
 
 const required = (val) => val && val.length;
@@ -47,6 +48,7 @@ const minLength = (len) => (val) => val && (val.length >= len);
 
 
 const Header = (props) => {
+    const { cart, location, auth, putCart, deleteCart } = props
     const [isOpen, setIsOpen] = useState(false);
 
     const toggle = () => setIsOpen(!isOpen);
@@ -67,7 +69,7 @@ const Header = (props) => {
                         <FontAwesomeIcon className="align-middle d-lg-none mr-2" icon={faBars} size="lg" onClick={toggle} />
                     </div>
                     <div className="col-10 text-center text-lg-center" >
-                        <Link className="" href="/product/all">
+                        <Link className="" to="/products/all">
                             <img style={{ width: "85%" }} src={require('./images/Vintage-to-New-Logo.png')}></img>
                         </Link>
                     </div>
@@ -87,17 +89,34 @@ const Header = (props) => {
 
                 </div>
                 <div className="order-2 order-lg-3 col-1 col-lg-4 d-flex justify-content-center align-items-center">
-                    <FontAwesomeIcon icon={faShoppingCart} size="2x" />
+                    <div className="">
+                        <CartModal cart={cart}
+                        putCart={putCart}
+                        deleteCart={deleteCart} />
+                    </div>
                 </div>
             </div>
-          
+
+
 
             <div className={`d-none ${isOpen ? "d-block" : "d-none "}  d-lg-flex aqua-background rounded row align-items-center justify-content-center`} >
                 {/* <Collapse isOpen={isOpen} > */}
-                <ListGroupItem className="aqua-background text-white"><Login /></ListGroupItem>
-                <ListGroupItem className="aqua-background"><NavLink className="text-white" href="/components/">Components</NavLink></ListGroupItem>
+                <ListGroupItem className={!auth.isAuthenticated && location.pathname === "/login" ? "d-none" : "aqua-background text-white"}>
+                    <span className={auth.isAuthenticated ? "d-none" : ""}>
+                        <Login />
+                    </span>
+                    <span className={!auth.isAuthenticated ? "d-none" : ""}>
+                        <Link to={'/logout'}>
+                            <Button outline >
+                                <span className="fa fa-pencil fa-lg">Logout</span>
+                            </Button>
+                        </Link>
+                    </span>
+
+                </ListGroupItem>
+                <ListGroupItem className="aqua-background"><NavLink className="text-white" href="#">Components</NavLink></ListGroupItem>
                 <ListGroupItem className="aqua-background">
-                    <NavLink className="text-white" href="https://github.com/reactstrap/reactstrap">GitHub</NavLink>
+                    <NavLink className="text-white" href="#">Test</NavLink>
                 </ListGroupItem>
                 <UncontrolledDropdown className="align-middle">
                     <DropdownToggle outline className="text-white" caret>
@@ -130,7 +149,9 @@ const Header = (props) => {
             </div>
         </div >
     )
+
 }
+
 
 // </nav>
 

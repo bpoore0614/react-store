@@ -5,19 +5,19 @@ import jwtDecode from 'jwt-decode';
 
 function EditReviews(userId, review_id) {
     var edit;
-    const token = localStorage.getItem('token')
-    if (token && jwtDecode(token)._id == userId) {
-        edit =
-            <Link to={"/reviews/" + review_id}>
-                <Button outline >
-                    <span className="fa fa-pencil fa-lg"></span>
-                </Button >
-            </Link>
+    // const token = localStorage.getItem('token')
+    // if (token && jwtDecode(token)._id == userId) {
+    //     edit =
+    //         <Link to={"/reviews/" + review_id}>
+    //             <Button outline >
+    //                 <span className="fa fa-pencil fa-lg"></span>
+    //             </Button >
+    //         </Link>
 
-    }
+    // }
     return (
         <div>
-            {edit}
+            {"test"}
         </div>
     )
 

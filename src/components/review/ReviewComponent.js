@@ -53,13 +53,13 @@ class Review extends Component {
     }
 
     async handleSubmit(id) {
-        const token = localStorage.getItem('token')
-        if (token) {
-            this.props.removeReview(id);
-        }
-        else (
-            this.props.sendFlashMessage("Must be review author to delete review", "alert-danger")
-        )
+        // const token = localStorage.getItem('token')
+        // if (token) {
+        //     this.props.removeReview(id);
+        // }
+        // else (
+        //     this.props.sendFlashMessage("Must be review author to delete review", "alert-danger")
+        // )
     }
 
     handleReviewSubmit(values) {

@@ -8,7 +8,7 @@ const initialState = {
 export default function flashMessage(state = initialState, action){  
   switch(action.type){
     case FLASH_MESSAGE:
-      return action.payload;
+            return Object.assign({}, state, { message: action.payload.message, className: action.payload.className})
     default:
       return state;
   }

@@ -44,7 +44,7 @@ const Description = (props) => (
 
 const DispayProduct = props => {
     const [section, setSection] = useState({ reviews: false, description: true });
-    const { product } = props;
+    const {product, postCart } = props;
 
     const toggleSection = () => {
         const switchedSection = { ...section };
@@ -98,7 +98,12 @@ const DispayProduct = props => {
                         <span className="mr-3 font-weight-bold">${(product.price / 100).toFixed(2)}</span>
                     </div>
                     <div>
-                        <span className=" justify-content-center"><AddToCart /></span>
+                        <span className=" justify-content-center">
+                            <AddToCart
+                                product={product}
+                                postCart={postCart}
+                            />
+                        </span>
                     </div>
 
                     {/* </div> */}

@@ -8,6 +8,7 @@ import auth from './auth';
 import reviews from './reviews';
 import images from './images';
 import cart from './cart';
+import user from './user';
 // import { Promotions } from './promotions';
 // import { Leaders } from './leaders';
 import thunk from 'redux-thunk';
@@ -17,7 +18,7 @@ import jwtDecode from 'jwt-decode'
 // import { routerMiddleware, push } from 'react-router-redux'
 
 import { useHistory } from "react-router-dom";
-import {logoutUser} from './ActionTypes';
+import { logoutUser, refreshToken, receiveLogout } from './ActionTypes';
 import products from "./product";
 import { InitialFeedback } from '../components/product/ProductFormComponent';
 // import { InitialFeedback } from './forms';
@@ -31,28 +32,54 @@ const rootReducer = combineReducers({
   Reviews: reviews,
   FlashMessage: flashMessage,
   Images: images,
-  Cart: cart
+  Cart: cart,
+  User: user
 
 })
 
 export default function ConfigureStore(preloadedState) {
+  alert("run before action creator")
   return createStore(
     rootReducer,
     preloadedState,
-    applyMiddleware(thunk, logger, checkTokenExpirationMiddleware)
+    applyMiddleware(thunk, logger, refreshTokenMiddleware)
   )
 }
 
-const checkTokenExpirationMiddleware = store => next => action => {
-  const token = localStorage.getItem('token')
-  if (token && jwtDecode(token).exp < Date.now() / 1000) {
-    alert("Your session has expired")
-    localStorage.removeItem('token');
-    store.dispatch(logoutUser())
-    next(action);
-  }
-  next(action);
+const refreshTokenMiddleware = store => next => async action => {
+  const { tokenRefreshTime, refreshExpiration, isAuthenticated } = store.getState().Auth;
+// alert(JSON.stringify(action))
+  // if (isAuthenticated && tokenRefreshTime && refreshExpiration
+  //   && tokenRefreshTime < Date.now()
+  //   && refreshExpiration > Date.now()) {
+  //   const result = await store.dispatch(refreshToken());
+  //   if (result) {
+  //     next(action)
+  //   } else {
+  //     // alert(isAuthenticated)
+      // alert("Your session has expired")
+      // window.location.href = "/login";
+  //     // store.dispatch(receiveLogout())
+  //     // alert(JSON.stringify(action))
+      
+  //   }
+  // } else next(action)
+  next(action)
+
+  //   // const token = localStorage.getItem('token')
+  //   // if (token && jwtDecode(token).exp < Date.now() / 1000) {
+  //   //   localStorage.removeItem('token');
+  //   //   store.dispatch(logoutUser())
+  //   //   next(action);
+  //   // }
+  //   // else if(token){
+  //   //   store.dispatch(refreshToken())
+
+  //   // }
+
+
 };
+
 
 // export const ConfigureStore = () => {
 //     const store = createStore(

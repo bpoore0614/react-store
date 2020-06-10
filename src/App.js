@@ -8,8 +8,9 @@ import AsyncApp from './components/TagContainerComponent';
 import FlashMessage from './components/Utility/FlashMessage';
 import UserAction from './components/Utility/UserActions'
 
+require('dotenv').config()
 
-const store = ConfigureStore();
+export const store = ConfigureStore();
 
 class App extends Component {
 

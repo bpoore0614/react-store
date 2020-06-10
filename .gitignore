@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+/vtn.env
+
 # testing
 /coverage
 

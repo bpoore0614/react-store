@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
+import { Switch, Route} from 'react-router-dom';
 import { Card, CardImg, CardImgOverlay, CardTitle, Breadcrumb, BreadcrumbItem, FormGroup, Button, Modal, ModalHeader, ModalBody, Label } from 'reactstrap';
 import { Control, LocalForm, Errors } from 'react-redux-form';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux'
+import UserProudctList from './UserProductList';
 import {
     postCategory, postTag, addProduct, putProduct, postProduct, removeProduct,
-    setProductPage, addSelectedImage, dispatchMultiImage, updateTagsState
+    setProductPage, addSelectedImage, dispatchMultiImage, updateTagsState, postCart
 } from '../../redux/ActionTypes';
 import NotFoundPage from '../notFoundPage';
 import DisplayProduct from './UserDispayProductComponent';
@@ -68,10 +69,8 @@ class UserProduct extends Component {
     }
 
     render() {
-        const { products, match } = this.props;
-
-        if (!this.props.products.isFetching && !this.props.tags.isFetching && !this.props.categories.isFetching
-            && !this.props.images.isFetching) {
+        const { products, match, postCart } = this.props;
+        const SingleProduct = () => {
             const formatedProductName = match.params.productName.replace("-", " ");
             const currentProduct = products.items.find(product => product.name.toLowerCase() === formatedProductName.toLowerCase())
             if (currentProduct) {
@@ -79,24 +78,29 @@ class UserProduct extends Component {
                     <div>
                         <DisplayProduct
                             product={currentProduct}
-                            toggleShowReviewsDescription ={() => this.toggleShowReviewsDescription()}
-                            showReviews={this.state.showReviews}
-                            showDescription={this.state.showDescription}
+                            postCart={postCart}
                         />
-                    </div>
-                )
-            } else {
-                return (
-                    <Route path="*" component={NotFoundPage} />
-                )
+                    </div>)
+
             }
-        } else {
-            return (
-                <div>LOADING</div>
-            )
         }
+        return (
+            <div>
+                <Switch location={this.props.location}>
+                    <Route exact path='/products/all' component={() =>
+                        <UserProudctList
+                            items={products.items}
+                            postCart={postCart}
+                            match ={match}
+                        />} />
+                    <Route exact path='/product/:productName' component={SingleProduct} />
+                    <Route path="*" component={NotFoundPage} />
+                </Switch>
+            </div>
+        )
     }
 }
+
 
 const mapStateToProps = state => {
     return {
@@ -107,7 +111,8 @@ const mapStateToProps = state => {
     }
 }
 const mapDispatchToProps = (dispatch) => ({
-    setProductPage: (page) => dispatch(setProductPage(page))
+    setProductPage: (page) => dispatch(setProductPage(page)),
+    postCart: (values) => dispatch(postCart(values))
     // sendFlashMessage: (name, className) => dispatch(sendFlashMessage(name, className))
 })
 

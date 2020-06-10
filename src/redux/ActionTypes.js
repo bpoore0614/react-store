@@ -1,6 +1,19 @@
 import review from "./reviews";
 import { baseUrl } from '../shared/baseUrl'
+import { NavbarText } from "reactstrap";
+import { Redirect } from "react-router";
+import { store } from '../App';
+
+
 const axios = require('axios').default;
+
+
+// axios.defaults.withCredentials = true;
+// alert(ConfigureStore.getState().Auth)
+let config = () => ({
+    timeout: 3000,
+    headers: { Authorization: "Bearer " + store.getState().Auth.token }
+})
 
 export const TAGS_LOADING = 'TAGS_LOADING';
 export const INVALIDATE_TAG = 'INVALIDATE_TAG';
@@ -32,6 +45,9 @@ export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
+export const IS_ADMIN = 'IS_ADMIN';
+export const ADD_USER = 'ADD_USER';
+export const USER_CREATION_FAILURE = "USER_CREATION_FAILURE";
 
 
 
@@ -136,14 +152,9 @@ function categoriesFailed(err) {
 // tags
 export function fetchTags() {
     return (dispatch) => {
-        return axios.get(baseUrl + '/tags/', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        })
-
+        return axios.get(baseUrl + '/tags/', config())
             .then(response => {
-                console.log(JSON.stringify(response))
+                alert(JSON.stringify(response))
                 dispatch(receiveTags(response))
             })
             .catch(error => {
@@ -181,11 +192,8 @@ export const postTag = (name, parent) => (dispatch) => {
         name: name,
         parent: parent
     };
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.post(baseUrl + '/tags', newTag,
-        config)
+
+    axios.post(baseUrl + '/tags', newTag)
         .then(response => dispatch(addTag(response)))
         .catch(error => {
             console.log('Post tag ', error.message);
@@ -273,11 +281,8 @@ export const removeTag = (tagId) => (dispatch) => {
 //parents
 export function fetchParents(tagId) {
     return dispatch => {
-        const config = {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        };
-        return axios.get(baseUrl + '/tags' + '/parents/' + tagId,
-            config)
+
+        return axios.get(baseUrl + '/tags' + '/parents/' + tagId)
             .then(response => dispatch(addTagParents(response)))
             .catch(error => dispatch(parentsFailed(error.message)))
             .finally(function () {
@@ -317,11 +322,8 @@ export function fetchParents(tagId) {
 // categories
 export function fetchCategories() {
     return (dispatch) => {
-        const config = {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        };
-        return axios.get(baseUrl + '/categories/',
-            config)
+
+        return axios.get(baseUrl + '/categories/')
             .then(response => {
                 dispatch(receiveCategories(response))
             })
@@ -366,11 +368,8 @@ export const postCategory = (name, parent) => (dispatch) => {
         name: name,
         parent: parent
     };
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.post(baseUrl + '/categories', newCategory,
-        config)
+
+    axios.post(baseUrl + '/categories', newCategory)
         .then(json => dispatch(receiveCategories(json)))
         .catch(function (error) {
             dispatch(categoriesFailed(error.response.data.message))
@@ -452,7 +451,14 @@ function requestLogin(creds) {
 function receiveLogin(response) {
     return {
         type: LOGIN_SUCCESS,
-        token: response.token
+        payload: response
+    }
+}
+
+function receiveAdmin(response) {
+    return {
+        type: IS_ADMIN,
+        payload: response
     }
 }
 
@@ -463,21 +469,63 @@ function loginError(message) {
     }
 }
 
+function addUser() {
+    return {
+        type: ADD_USER
+    }
+}
+function userCreationError(message) {
+    return {
+        type: USER_CREATION_FAILURE,
+        message
+    }
+}
 
 export const loginUser = (creds) => (dispatch) => {
     dispatch(requestLogin(creds))
-
-    return axios.post(baseUrl + '/users/login/', creds)
+    return axios.post(baseUrl + '/users/login/', creds, { withCredentials: true })
         .then(response => {
-            localStorage.setItem('token', response.data.token);
             dispatch(receiveLogin(response.data))
-            return response.data;
+        }).then(() => {
+            dispatch(sendFlashMessage("You have successfully logged in!", 'alert-success'))
+        })
+        .catch(function (error) {
+            alert(error)
+            dispatch(sendFlashMessage("Invalid username/password", 'alert-danger'))
+            dispatch(loginError("Invalid username/password"))
+        })
+}
+
+
+
+
+
+
+export const postUser = (creds) => (dispatch) => {
+    const user = {
+        username: creds.email.value,
+        password: creds.password.value,
+        name: creds.name.value,
+        newsletter: creds.newsletter.value
+    }
+
+    return axios.post(baseUrl + '/users/signup/', user)
+        .then(response => {
+            dispatch(sendFlashMessage("You have successfully registered!", 'alert-success'))
+            dispatch(addUser())
         })
         .catch(function (error) {
             alert(JSON.stringify(error))
-            // var error = new Error('Error ' + response.status);
-            // error.response = response;
-            // throw error;
+            // if (error.response) {
+            //     if (error.response.data.error.name && error.response.data.error.name === "UserExistsError") {
+            //         dispatch(sendFlashMessage("A user with the given username is already registered", "alert-danger"))
+
+            //     }
+            // }
+            // else {
+            //     dispatch(sendFlashMessage("User was not created, please try again", 'alert-danger'))
+            //     dispatch(userCreationError("User was not created, please try again"))
+            // }
         })
 }
 // export const loginUser = (creds) => (dispatch) => {
@@ -533,19 +581,26 @@ function requestLogout() {
     }
 }
 
-function receiveLogout() {
+export const receiveLogout = () => {
     return {
         type: LOGOUT_SUCCESS
     }
 }
 
 // Logs the user out
-export const logoutUser = () => (dispatch) => {
-    dispatch(requestLogout())
-    localStorage.removeItem('token');
-    localStorage.removeItem('creds');
-    dispatch(receiveLogout())
-    return true
+export const logoutUser = () => async (dispatch) => {
+    alert("logout")
+    return axios.get(baseUrl + '/users/logout/', {withCredentials: true})
+        .then(response => {
+            dispatch(receiveLogout())
+            dispatch(sendFlashMessage("You have successfully logged out", 'alert-success'))
+        })
+        .catch(error => {
+            console.log(error)
+            dispatch(sendFlashMessage("Logout failed, please try again", 'alert-alert'))
+        })
+        alert("end")
+
 }
 
 //alerts 
@@ -604,11 +659,8 @@ function reviewsFailed(err) {
 //review action creators
 
 export const fetchReviews = () => (dispatch) => {
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.get(baseUrl + '/reviews',
-        config)
+
+    axios.get(baseUrl + '/reviews')
         .then(response => dispatch(receiveReviews(response)))
         .catch(function (error) {
             dispatch(reviewsFailed(error.response.data.message))
@@ -619,11 +671,8 @@ export const fetchReviews = () => (dispatch) => {
 }
 
 export const postReview = (val) => (dispatch) => {
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.post(baseUrl + '/reviews', val,
-        config)
+
+    axios.post(baseUrl + '/reviews', val)
         .then(response => dispatch(addReview(response)))
         .catch(function (error) {
             dispatch(reviewsFailed(error.response.data.message))
@@ -633,11 +682,8 @@ export const postReview = (val) => (dispatch) => {
         });
 }
 export const putReview = (id, val) => (dispatch) => {
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.put(baseUrl + '/reviews/' + id, val,
-        config)
+
+    axios.put(baseUrl + '/reviews/' + id, val)
         .then(response => dispatch(receiveReviews(response)))
         .catch(function (error) {
             dispatch(reviewsFailed(error.response.data.message))
@@ -649,11 +695,8 @@ export const putReview = (id, val) => (dispatch) => {
 }
 
 export const removeReview = (id) => (dispatch) => {
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.delete(baseUrl + '/reviews/' + id,
-        config)
+
+    axios.delete(baseUrl + '/reviews/' + id)
         .then(response => dispatch(receiveReviews(response)))
         .catch(function (error) {
             dispatch(reviewsFailed(error.response.data.message))
@@ -719,11 +762,8 @@ function imagesFailed(err) {
 }
 
 export const fetchImages = () => (dispatch) => {
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.get(baseUrl + '/imageupload/',
-        config)
+
+    axios.get(baseUrl + '/imageupload/')
         .then(response => dispatch(receiveImages(response)))
         .catch(function (error) {
             dispatch(imagesFailed(error.response.data.message))
@@ -738,11 +778,7 @@ export const postImages = (values, formData) => (dispatch) => {
     formData.append('alt', values.alt ? values.alt.value : null);
     formData.append('description', values.description ? values.description.value : null);
 
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.post(baseUrl + '/imageupload/', formData,
-        config)
+    axios.post(baseUrl + '/imageupload/', formData)
         .then(response => {
             dispatch(addImage(response))
             // if (values.addToSingle) {
@@ -772,11 +808,8 @@ export const putImage = (values, id) => (dispatch) => {
         description: values.description ? values.description.value : null
     }
 
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.put(baseUrl + '/imageupload/' + id, image,
-        config)
+
+    axios.put(baseUrl + '/imageupload/' + id, image)
         .then(response => {
             dispatch(receiveImages(response))
         })
@@ -790,11 +823,8 @@ export const putImage = (values, id) => (dispatch) => {
 }
 
 export const removeImage = (id) => (dispatch) => {
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.delete(baseUrl + '/imageupload/' + id,
-        config)
+
+    axios.delete(baseUrl + '/imageupload/' + id)
         .then(response => {
             dispatch(receiveImages(response))
         })
@@ -876,11 +906,7 @@ export const setProductPage = (page) => (dispatch) => {
 
 export function fetchProducts() {
     return (dispatch) => {
-        const config = {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        };
-        return axios.get(baseUrl + '/products/',
-            config)
+        return axios.get(baseUrl + '/products/')
             .then(response => {
                 dispatch(receiveProducts(response))
             })
@@ -902,11 +928,8 @@ export const postProduct = (values) => (dispatch) => {
     newCategory.categories = values.categories;
     newCategory.tags = values.tags;
 
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.post(baseUrl + '/products', newCategory,
-        config)
+
+    axios.post(baseUrl + '/products', newCategory)
         .then(response => dispatch(addProduct(response)))
         .catch(function (error) {
             dispatch(reviewsFailed(error.response.data.message))
@@ -928,11 +951,8 @@ export const putProduct = (values, id) => (dispatch) => {
     newCategory.categories = values.categories;
     newCategory.tags = values.tags;
 
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.put(baseUrl + '/products/' + id, newCategory,
-        config)
+
+    axios.put(baseUrl + '/products/' + id, newCategory)
         .then(response => dispatch(updateProduct(response)))
         .catch(function (error) {
             alert(JSON.stringify(error))
@@ -945,11 +965,8 @@ export const putProduct = (values, id) => (dispatch) => {
 
 export const removeProduct = (id) => (dispatch) => {
 
-    const config = {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    };
-    axios.delete(baseUrl + '/products/' + id,
-        config)
+
+    axios.delete(baseUrl + '/products/' + id)
         .then(response => dispatch(receiveProducts(response)))
         .catch(function (error) {
             alert(JSON.stringify(error))
@@ -966,4 +983,222 @@ export const updateTagsState = (val) => (dispatch) => {
 }
 
 export const updateCategoriesState = (val) => (dispatch) => {
+}
+
+
+// export const RECEIVE_CART = "ADD_CART_ITEM";
+export const INVALIDATE_CART = "INVALIDATE_CART";
+export const REQUEST_CART = "REQUEST_CART";
+export const RECEIVE_CART = "RECEIVE_CART";
+export const UPDATE_CART = "UPDATE_CART";
+
+function receiveCart(items) {
+    return { type: RECEIVE_CART, payload: items };
+};
+
+function cartFailed(error) {
+    alert(error)
+    // return { type: ADD_CART_ITEM, payload: items };
+};
+
+export function fetchCart() {
+    return (dispatch, getState) => {
+        alert(getState().Auth.isAuthenticated)
+        if (getState().Auth.isAuthenticated) {
+            return axios.get(baseUrl + '/cart', config())
+                .then(response => {
+                    dispatch(receiveCart(response.data.products))
+                })
+                .catch(error => dispatch(productsFailed(error)))
+                .finally(function () {
+                    // always executed
+                });
+        } else {
+            let cart = JSON.parse(localStorage.getItem("cart")) === null ? [] : JSON.parse(localStorage.getItem("cart"))
+            dispatch(receiveCart(cart));
+        }
+    }
+}
+//     let cartItems = JSON.parse(localStorage.getItem("cart"))
+//     if (cartItems === null) {
+//         localStorage.setItem('cart', JSON.stringify([]));
+//         cartItems = JSON.parse(localStorage.getItem("cart"))
+
+//     }
+// }
+// dispatch(addCartItem(cartItems))
+// const config = {
+//     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+// };
+// return axios.get(baseUrl + '/products/',
+//     config)
+//     .then(response => {
+//         dispatch(receiveProducts(response))
+//     })
+//     .catch(error => dispatch(productsFailed(error)))
+//     .finally(function () {
+//         // always executed
+//     });
+
+export const refreshToken = () => (dispatch, getState) => {
+    const { tokenRefreshTime, refreshExpiration, isAuthenticated } = getState().Auth;
+    if (isAuthenticated && tokenRefreshTime && refreshExpiration
+        && tokenRefreshTime < Date.now()
+        && refreshExpiration > Date.now()) {
+        return axios.get(baseUrl + '/users/refreshtoken/', { withCredentials: true })
+            .then(response => {
+                dispatch(receiveLogin(response.data))
+                return (true)
+            })
+            .catch(async function (error) {
+                dispatch(receiveLogout())
+                alert("Your session has expired")
+                window.location.href = "/login";
+                return (false)
+            })
+    }else return true
+}
+
+export const autoLogIn = () => (dispatch, getState) => {
+    return axios.get(baseUrl + '/users/refreshtoken/', { withCredentials: true })
+        .then(response => {
+            if (response.data !== "No refresh cookie") {
+                dispatch(receiveLogin(response.data))
+            }
+        })
+        .catch(async function (error) {
+
+        })
+}
+
+export const getUser = () => (dispatch) => {
+    return axios.get(baseUrl + '/users/get-user/', config())
+        .then(response => {
+            dispatch(receiveAdmin(response.data))
+        })
+        .catch(async function (error) {
+            console.log(error);
+        })
+}
+
+export const postCart = (values) => async (dispatch, getState) => {
+    alert(getState().Auth.isAuthenticated)
+    if (getState().Auth.isAuthenticated) {
+        const hasToken = await dispatch(refreshToken())
+        if (hasToken) {
+            alert(hasToken)
+            const cartItem = { id: values.product._id, quantity: values.quantity }
+            axios.post(baseUrl + '/cart', cartItem, config())
+                .then(response => {
+                    dispatch(receiveCart(response.data.products))
+                    // added = response.data.products.find(product => product.id._id.toString() === values.product._id.toString())
+                    dispatch(sendFlashMessage(values.quantity + " " + values.product.name + " added to cart", 'alert-success'))
+                })
+                .catch(function (error) {
+                    dispatch(sendFlashMessage("Error adding " + values.product.name + " to cart. Please try again!", 'alert-danger'))
+                })
+        }
+
+    } else {
+        // localStorage.removeItem("cart")
+        let cart = JSON.parse(localStorage.getItem("cart")) === null ? [] : JSON.parse(localStorage.getItem("cart"))
+        let addFlag = false;
+        const productsInCart = cart.map(product => {
+            if (product.product._id.toString() === values.product._id.toString()) {
+                addFlag = true;
+                return ({ product: product.product, quantity: product.quantity + values.quantity })
+            } return ({ product: product.product, quantity: product.quantity })
+        })
+        if (addFlag) {
+            cart = productsInCart
+        } else {
+            cart.push({ product: values.product, quantity: values.quantity })
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        dispatch(receiveCart(JSON.parse(localStorage.getItem('cart'))));
+        dispatch(sendFlashMessage(values.quantity + " " + values.product.name + " added to cart", 'alert-success'))
+    }
+}
+
+export const putCart = (values) => async (dispatch, getState) => {
+    if (getState().Auth.isAuthenticated) {
+        const hasToken = await dispatch(refreshToken())
+        if (hasToken) {
+            const cartItem = { id: values.product._id, quantity: values.quantity }
+            axios.put(baseUrl + '/cart/' + values.product._id, cartItem, config())
+                .then(response => {
+                    dispatch(receiveCart(response.data.products))
+                    // added = response.data.products.find(product => product.id._id.toString() === values.product._id.toString())
+                    dispatch(sendFlashMessage(values.product.name + " quantity changed to " + values.quantity, 'alert-success'))
+                })
+                .catch(function (error) {
+                    alert(error)
+                    dispatch(sendFlashMessage("Error updating " + values.product.name + " in cart. Please try again!", 'alert-danger'))
+                })
+        }
+    } else {
+        let cart = JSON.parse(localStorage.getItem("cart")) === null ? [] : JSON.parse(localStorage.getItem("cart"))
+        cart = cart.map(product => {
+            if (product.product._id.toString() === values.product._id.toString()) {
+                return ({ product: product.product, quantity: values.quantity })
+            }
+            return ({ product: product.product, quantity: product.quantity })
+        })
+        localStorage.setItem('cart', JSON.stringify(cart));
+        dispatch(receiveCart(JSON.parse(localStorage.getItem('cart'))));
+        dispatch(sendFlashMessage(values.product.name + " quantity changed to " + values.quantity, 'alert-success'))
+    }
+}
+
+export const deleteCart = (values) => async (dispatch, getState) => {
+    if (getState().Auth.isAuthenticated) {
+        const hasToken = await dispatch(refreshToken())
+        if (hasToken) {
+            axios.delete(baseUrl + '/cart/' + values._id, config())
+                .then(response => {
+                    dispatch(receiveCart(response.data.products))
+                    dispatch(sendFlashMessage(values.name + " removed from cart", 'alert-success'))
+                })
+                .catch(function (error) {
+                    alert(error)
+                    dispatch(sendFlashMessage("Error removing " + values.name + " from cart. Please try again!", 'alert-danger'))
+                })
+        }
+    } else {
+        let cart = JSON.parse(localStorage.getItem("cart")) === null ? [] : JSON.parse(localStorage.getItem("cart"))
+        cart = cart.filter(product => product.product._id.toString() !== values._id.toString())
+        localStorage.setItem('cart', JSON.stringify(cart));
+        dispatch(receiveCart(JSON.parse(localStorage.getItem('cart'))));
+        dispatch(sendFlashMessage(values.name + " removed from cart", 'alert-success'))
+    }
+}
+
+
+
+export function postLocalCart() {
+    return (dispatch, getState) => {
+        if (getState().Auth.isAuthenticated) {
+            const cart = { cart: JSON.parse(localStorage.getItem('cart')) }
+            if (cart.cart) {
+                cart.cart = cart.cart.map(item => (
+                    { id: item.product._id, quantity: item.quantity }
+                ))
+                axios.post(baseUrl + '/cart/transfer', cart, config())
+                    .then(response => {
+                        dispatch(fetchCart())
+                        localStorage.removeItem("cart")
+                    })
+                    .catch(function (error) {
+                        alert(error)
+                    })
+                    .finally(function () {
+                        // always executed
+                    });
+            } else {
+                dispatch(fetchCart())
+            }
+        }
+    }
+
 }

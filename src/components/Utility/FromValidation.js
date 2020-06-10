@@ -55,6 +55,7 @@ export const validate = (event, stateObject) => {
                     message = `${name.charAt(0).toUpperCase() + name.slice(1)} must be a valid email address`;
                     stateObject[name].errMess = [...stateObject[name].errMess, message];
                 }
+                break;
             case 'isObject':
                 if (!typeof (value) === 'object') {
                     stateObject[name].valid = false;
@@ -62,15 +63,72 @@ export const validate = (event, stateObject) => {
                     stateObject[name].errMess = [...stateObject[name].errMess, message];
                 }
             case 'hasImages':
-                alert("test")
                 if ((value).length === 0) {
-                    alert("test")
                     stateObject[name].valid = false;
                     message = "At least one image is required in carousel";
                     stateObject[name].errMess = [...stateObject[name].errMess, message];
                 }
+                break;
+            case 'meetsSpecialChar':
+                let hasCapitals = false;
+                let hasLowerCase = false;
+                let hasNumber = false;
+                let hasSpecial = false;
 
-            default: stateObject[name].valid = true
+                const capitals = /[A-Z]/g;
+                if (value.match(capitals)) {
+                    hasCapitals = true
+                }
+
+                const lowercase = /[a-z]/g;
+                if (value.match(lowercase)) {
+                    hasLowerCase = true
+                }
+
+                const numbers = /[0-9]/g;
+                if (value.match(numbers)) {
+                    hasNumber = true
+                }
+
+                const specialChar = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g;
+                if (value.match(specialChar)) {
+                    hasSpecial = true
+                }
+
+                if (!hasCapitals || !hasLowerCase || !hasNumber || !hasSpecial) {
+                    stateObject[name].valid = false;
+                    if (!hasCapitals) {
+                        message = "At least one capital letter is required"
+                        stateObject[name].errMess = [...stateObject[name].errMess, message];
+                    }
+                    if (!hasLowerCase) {
+                        message = "At least one lower-case letter is required"
+                        stateObject[name].errMess = [...stateObject[name].errMess, message];
+                    }
+                    if (!hasNumber) {
+                        message = "At least one number is required"
+                        stateObject[name].errMess = [...stateObject[name].errMess, message];
+                    }
+                    if (!hasSpecial) {
+                        message = "At least one capital special character is required"
+                        stateObject[name].errMess = [...stateObject[name].errMess, message];
+                    }
+                }
+                break;
+            case 'passwordsMatch':
+                if (stateObject["password"].value !== stateObject["verifyPassword"].value
+                    && stateObject["verifyPassword"].touched) {
+                    stateObject["verifyPassword"].valid = false;
+                    message = "Passwords do not match"
+                    stateObject[name].errMess = [...stateObject[name].errMess, message];
+                }else{
+                    stateObject["verifyPassword"].valid = true;
+                }
+
+                break;
+            default:
+                alert("default")
+                stateObject[name].valid = true
         }
     }
     return stateObject
